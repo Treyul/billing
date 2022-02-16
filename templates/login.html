@@ -1,0 +1,38 @@
+{% extends "layout.html" %} {% block body %}
+<div class="loginPage">
+  <legend>Premalite Water Supply Management</legend>
+  <hr style="width: 60%; margin-bottom: 50px; margin-top: 0px" />
+  <!-- change into animation fading out -->
+  <div class="hidden" id="error">Incorrect Password</div>
+  <form action="/login" method="post">
+    <input
+      type="text"
+      placeholder="Username"
+      name="username"
+      suggested="name"
+      class="logs"
+      id="user"
+      important
+      required
+    /><br /><br />
+    <input
+      type="password"
+      placeholder="Password"
+      name="password"
+      class="logs"
+      id="pass"
+      required
+    /><br /><br />
+    <div class="center">
+      <input class="login" value="Log in" type="submit" />
+    </div>
+  </form>
+  <a href="recoverpassord.html" class="la"><p>Forgot your password?</p></a
+  ><br /><br />
+  <hr />
+  <p style="text-align: center">
+    Don't have an account?
+    <a class="la" href="signin.html">Create account</a>
+  </p>
+</div>
+{% endblock %}
