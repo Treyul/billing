@@ -21,9 +21,14 @@ app = Flask(__name__)
 def login():
     username = request.form.get("username");
     password = request.form.get("password")
-    print(username,password)
-    if username == "tre":
-        return render_template("index.html")
+    print(username=="you",password)
+    if username == "you":
+        return render_template("login.html")
+    return redirect(to="/home",permanent=True,)
+
+@app.route("/home")
+def home():
+    return render_template("index.html")
 
 @app.route("/")
 def index():
