@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      input:focus-visible {
+        border-bottom: rgba(0, 0, 255, 0.829) thin solid;
+        border-top: none;
+        border-left: none;
+        border-right: none;
+        outline-style: none;
+      }
+      .pass2 {
+        border-bottom: rgba(255, 0, 0, 0.829) thin solid;
+      }
+      .pass2:focus-visible {
+        border-bottom: rgba(255, 0, 0, 0.829) thin solid;
+      }
+
+      input {
+        border-top: none;
+        border-left: none;
+        border-right: none;
+        border-bottom-width: thin;
+        text-align: center;
+        display: block;
+        line-height: 2rem;
+        letter-spacing: 1.5px;
+        font-family: Cambria, Cochin, Georgia, Times, "Times New Roman", serif;
+        font-size: large;
+        margin: 2rem;
+        width: 33.3%;
+      }
+      #send {
+        border-radius: 25px;
+        background-color: #c9c6c6;
+        transition: all 2s ease;
+        border-bottom: none;
+        margin-top: 5px;
+      }
+      #send:hover {
+        background-color: darkgray;
+        transform: translateY(-5px);
+      }
+      p {
+        font-family: "Times New Roman", Times, serif;
+        font-size: large;
+      }
+      .hidden {
+        display: none;
+      }
+    </style>
+    <title>Create Account</title>
+  </head>
+  <body>
+    <form action="/signin" method="post" name="first">
+      <p>Enter details that appear on your bill</p>
+      <input type="text" t name="fname" placeholder="First name" />
+      <input type="text" name="lname" placeholder="Second name" />
+      <input type="tel" name="phone" placeholder="Phone number" />
+      <input type="text" name="account" placeholder="Account no" />
+      <p>Enter details that you will use to login to your account</p>
+      <div>
+        <p id="error" class="hidden"></p>
+        <input id="user" type="text" name="username" placeholder="Username" />
+        <input
+          id="pass1"
+          type="password"
+          name="password"
+          placeholder="Password"
+          important
+          required
+        />
+        <input
+          id="pass2"
+          type="password"
+          name="cpassword"
+          placeholder="Confirm password"
+          required
+        />
+        <input id="em" type="email" name="email" placeholder="Email Optional" />
+        <input id="send" type="submit" value="Create account" />
+      </div>
+    </form>
+    <script>
+      const pass1 = document.getElementById("pass1");
+      const pass2 = document.getElementById("pass2");
+      const user = document.getElementById("user");
+      const email = document.getElementById("em");
+      const error = document.getElementById("error");
+      email.addEventListener("keyup", function () {
+        if (email.value != "") {
+          if (email.value.match(/[^@]+@[^@]+\.[^@]+/) == null) {
+            email.classList.add("pass2");
+            console.log("invalid email address");
+            error.innerHTML = "invalid email address";
+            error.classList.remove("hidden");
+          }
+        } else if (email.value == "") {
+          email.classList.remove("pass2");
+          error.classList.add("hidden");
+        }
+      });
+      user.addEventListener("keyup", function () {
+        if (user.value.match(/[^0-9a-z ]/gi) != null) {
+          console.log("username should not contain symbols");
+          error.innerHTML = "username should not contain symbols";
+          error.classList.remove("hidden");
+        } else {
+          error.classList.add("hidden");
+        }
+      });
+      pass1.addEventListener("keyup", function () {
+        value = pass1.value;
+        val2 = pass2.value;
+        if (value != val2) {
+          pass2.classList.add("pass2");
+        } else {
+          pass2.classList.remove("pass2");
+        }
+      });
+      pass2.addEventListener("keyup", function () {
+        value = pass1.value;
+        val2 = pass2.value;
+        if (value != val2) {
+          pass2.classList.add("pass2");
+          error.innerHTML = "passwords do not match";
+          error.classList.remove("hidden");
+        } else {
+          error.classList.add("hidden");
+          pass2.classList.remove("pass2");
+        }
+      });
+    </script>
+  </body>
+</html>
