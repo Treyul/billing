@@ -1,3 +1,37 @@
 {% extends "layout.html" %} {% block body %}
 <p>Welcome {{name}}</p>
+<div class="main">
+  <p id="name">Welcome {{name}}</p>
+  <main class="App">
+    <div class="notices">
+      <div class="notice">
+        There are no Notices for the month of December <br />
+        Consumer notice:There is a delay in your payment for this month
+      </div>
+    </div>
+    <div class="bill" style="grid-column: 1/2; grid-row: 3 / span 9"></div>
+    <div class="payments"></div>
+    <div class="averages"></div>
+    <div id="first">
+      <input type="button" value="Search previous bills" class="search" />
+    </div>
+    <div id="second">
+      <input type="button" value="Search Payments" class="search" />
+    </div>
+  </main>
+  <!-- //create tab that will explain the stem and its features -->
+  <!-- add this that should be on the contacts and info -->
+  <div id="contacts">
+    <ul>
+      <li><a href="" class="cnts">Twitter</a></li>
+      <li><a href="" class="cnts">Facebook</a></li>
+      <li><a href="" class="cnts">Whatsapp</a></li>
+    </ul>
+    &copy 2021
+  </div>
+</div>
+<div class="display hidden" id="searchresults">
+  <span class="close" title="Close">&times;</span>
+  <div id="results"></div>
+</div>
 {% endblock %}
