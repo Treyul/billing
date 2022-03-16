@@ -1,3 +1,5 @@
+from concurrent.futures.process import _python_exit
+from urllib import response
 from flask import Flask, make_response,render_template,request,redirect,session,jsonify
 from flask_session import Session
 from flask_mysqldb import MySQL
@@ -51,6 +53,8 @@ def login():
         details= (name,password)
         db.execute('SELECT * FROM loggins WHERE username = %s AND password = %s;',details)
         acc = db.fetchone()
+        db.execute("select column_name from information_schema.columns where table_name = N'loggins'")
+        print(db.fetchall())
     # # TODO if user does not exist
     # # TODO wrong password
         if not acc:
@@ -61,45 +65,30 @@ def login():
             return render_template("index.html",name = name)
     return render_template('login.html')
 
-
+phone = 0
+account = ""
 @app.route('/signin',methods=["POST","GET"])
 def signin():
-    if request.method == 'GET'and request.args.get("fname") != None:
-        print("this")
-        db = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-        names = request.args.get("fname") + " " + request.args.get("lname")
-        phone = request.args.get("phone")
-        account = request.args.get("account").upper()
-        det = (names,account,phone) 
-        print(names.lower())
-        # TODO check if details match
-        db.execute("SELECT * FROM user WHERE name = %s and account_number = %s and phone_number = %s",(det))
-        user = db.fetchone()
-        # TODO check if user exists   
-        print(user)
-
-    elif request.method == 'POST':
+    db = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    if request.method == 'POST':
+        req = request.get_json()
+        username = req["0"]
+        password = req["1"]
+        cpassword = req["2"]
+        email = req["3"]
+        print(req)
         msg = ''
-        # TODO check first batch of bill credentials 
         # TODO create user with the credentials provided if first batch checks out
         # TODO if username already exists
-        if not user:
-            print("user does not exist or already has an account")
-        else:    
-            if not re.match(r'[a-zA-Z0-9]+',username):
-                print("username should not contain symbols")
-                return
-            else:
-                print("ture")
+        # TODO verify person details by use of sending short code to number or email provided     
+        if not re.match(r'[a-zA-Z0-9]+',username):
+            print("username should not contain symbols")
+            return
+        else:
             # TODO check if username if exists
-
             # TODO check if credibility of details
-            username = request.form.get("username")
-            password = request.form.get("password")
-            cpassword = request.form.get("cpassword")
             if password == cpassword:
                 password = sha512(password.encode()).hexdigest()
-            email = request.form.get("email")
             details = (username,password,phone,account,email)
             db.execute("INSERT INTO loggins(username,password,phone_number,account,email) VALUES(%s,%s,%s,%s,%s)",details)
             
@@ -126,6 +115,9 @@ def signin():
 
 @app.route("/trial",methods=["POST","GET"])
 def trial():
+    # TODO check first batch of bill credentials 
+    global phone
+    global account 
     req = request.get_json()
     db = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     names = req["0"] + " " + req["1"]
@@ -138,8 +130,8 @@ def trial():
     print(req)
     print(names.lower(),phone, account.upper())
     if not user:
-        return make_response(jsonify({"message":"user doesn't exist"}),200)
+        return make_response(jsonify({"message":"error"}),200)
     if user:
-        return make_response(jsonify({"message":"user exists"}),200)
+        return make_response(jsonify({"message":"success"}),200)
     res = make_response(jsonify({"message":"OK"}),200)
     return res
