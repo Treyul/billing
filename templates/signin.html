@@ -5,100 +5,95 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <style>
-            input:focus-visible {
-              border-bottom: rgba(0, 0, 255, 0.829) thin solid;
-              border-top: none;
-              border-left: none;
-              border-right: none;
-              outline-style: none;
-            }
-            .accept {
-              background-color: rgb(95 213 95 / 83%);
-              color: rgb(0 0 0 / 73%);
-              border-radius: 25px;
-              border-bottom: none;
-            }
-            .pass2 {
-              border-bottom: rgba(255, 0, 0, 0.829) thin solid;
-            }
-            .pass2:focus-visible {
-              border-bottom: rgba(255, 0, 0, 0.829) thin solid;
-            }
+      input:focus-visible {
+        border-bottom: rgba(0, 0, 255, 0.829) thin solid;
+        border-top: none;
+        border-left: none;
+        border-right: none;
+        outline-style: none;
+      }
+      .accept {
+        background-color: rgb(95 213 95 / 83%);
+        color: rgb(0 0 0 / 73%);
+        border-radius: 25px;
+        border-bottom: none;
+      }
+      .pass2 {
+        border-bottom: rgba(255, 0, 0, 0.829) thin solid;
+      }
+      .pass2:focus-visible {
+        border-bottom: rgba(255, 0, 0, 0.829) thin solid;
+      }
 
-            input {
-              border-top: none;
-              border-left: none;
-              border-right: none;
-              border-bottom-width: thin;
-              text-align: center;
-              display: block;
-              line-height: 2rem;
-              letter-spacing: 1.5px;
-              font-family: Cambria, Cochin, Georgia, Times, "Times New Roman", serif;
-              font-size: large;
-              margin: 2rem;
-              width: 33.3%;
-            }
-            #send {
-              border-radius: 25px;
-              background-color: #c9c6c6;
-              transition: all 2s ease;
-              border-bottom: none;
-              margin-top: 5px;
-            }
-            #send:hover {
-              width: 60%;
-            }
-            .send {
-              border-radius: 25px;
-              background-color: #c9c6c6;
-              transition: all 1s ease;
-              border-bottom: none;
-              margin-top: 5px;
-            }
-            .send:hover {
-              background-color: darkgray;
-              transform: translateY(-5px);
-            }
-            p {
-              font-family: "Times New Roman", Times, serif;
-              font-size: large;
-      <<<<<<< HEAD
-      =======
-              text-align: center;
-      >>>>>>> d3a5b5155bfe1bb2adff19a492ae22a60c1337ee
-            }
-            .hidden {
-              display: none;
-            }
-      <<<<<<< HEAD
-      =======
-            form {
-              display: flex;
-              flex-direction: column;
-              align-items: center;
-            }
-            .error {
-              background-color: rgb(241 56 56 / 90%);
-              margin: 4px;
-              padding: 5px;
-              text-align: center;
-              border-radius: 45px;
-              letter-spacing: 2px;
-              color: black;
-              font-weight: bold;
-            }
-            body {
-              display: grid;
-              grid-template-rows: auto, auto;
-              grid-template-columns: auto 45% 45% auto;
-              row-gap: 2rem;
-            }
-            #first {
-              grid-row: 1;
-              grid-column: 3;
-            }
-      >>>>>>> d3a5b5155bfe1bb2adff19a492ae22a60c1337ee
+      input {
+        border-top: none;
+        border-left: none;
+        border-right: none;
+        border-bottom-width: thin;
+        text-align: center;
+        display: block;
+        line-height: 2rem;
+        letter-spacing: 1.5px;
+        font-family: Cambria, Cochin, Georgia, Times, "Times New Roman", serif;
+        font-size: large;
+        margin: 2rem;
+        width: 33.3%;
+      }
+      #send {
+        border-radius: 25px;
+        background-color: #c9c6c6;
+        transition: all 2s ease;
+        border-bottom: none;
+        margin-top: 5px;
+      }
+      #send:hover {
+        width: 60%;
+      }
+      .send {
+        border-radius: 25px;
+        background-color: #c9c6c6;
+        transition: all 1s ease;
+        border-bottom: none;
+        margin-top: 5px;
+      }
+      .send:hover {
+        background-color: darkgray;
+        transform: translateY(-5px);
+      }
+      p {
+        font-family: "Times New Roman", Times, serif;
+        font-size: large;
+        text-align: center;
+      }
+      .hidden {
+        display: none;
+      }
+
+      form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      .error {
+        background-color: rgb(241 56 56 / 90%);
+        margin: 4px;
+        padding: 5px;
+        text-align: center;
+        border-radius: 45px;
+        letter-spacing: 2px;
+        color: black;
+        font-weight: bold;
+      }
+      body {
+        display: grid;
+        grid-template-rows: auto, auto;
+        grid-template-columns: auto 45% 45% auto;
+        row-gap: 2rem;
+      }
+      #first {
+        grid-row: 1;
+        grid-column: 3;
+      }
     </style>
     <title>Create Account</title>
   </head>
@@ -133,251 +128,228 @@
         <input id="send" type="submit" value="Create account" />
       </div>
     </form>
+    <!-- <script> -->
+    <div
+      style="
+        grid-row: 1;
+        grid-column: 2;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      "
+    >
+      <p>Welcome new user 😃</p>
+      <p>
+        To create an account you need the account number provided to you by the
+        company
+      </p>
+      <p>Firstname: John</p>
+      <p>Lastname: Doe</p>
+      <p>Phone number: 07xxxxxxxx</p>
+      <p>Account Number: L0-00JD</p>
+    </div>
+    <form action="/signin" method="get" id="first">
+      <p class="error hidden" id="error1"></p>
+      <input type="text" t name="fname" placeholder="First name" required />
+      <input type="text" name="lname" placeholder="Second name" required />
+      <input type="tel" name="phone" placeholder="Phone number" required />
+      <input type="text" name="account" placeholder="Account no" required />
+      <input class="send" id="send1" type="submit" value="Verify details" />
+    </form>
+    <div style="grid-row: 2; grid-column: 3">
+      <p>Enter details that you will use to login to your account</p>
+    </div>
+    <form
+      id="second"
+      action="/signin"
+      method="post"
+      style="grid-row: 2; grid-column: 2"
+    >
+      <p class="error hidden" id="error2"></p>
+      <input
+        id="user"
+        type="text"
+        name="username"
+        placeholder="Username"
+        disabled
+      />
+      <input
+        id="pass1"
+        type="password"
+        name="password"
+        placeholder="Password"
+        important
+        required
+        disabled
+      />
+      <input
+        id="pass2"
+        type="password"
+        name="cpassword"
+        placeholder="Confirm password"
+        required
+        disabled
+      />
+      <input
+        disabled
+        id="em"
+        type="email"
+        name="email"
+        placeholder="Email Optional"
+      />
+      <input
+        disabled
+        class="send"
+        id="send2"
+        type="submit"
+        value="Create account"
+      />
+    </form>
     <script>
-      =======
-          <div
-            style="
-              grid-row: 1;
-              grid-column: 2;
-              display: flex;
-              flex-direction: column;
-              justify-content: center;
-            "
-          >
-            <p>Welcome new user 😃</p>
-            <p>
-              To create an account you need the account number provided to you by the
-              company
-            </p>
-            <p>Firstname: John</p>
-            <p>Lastname: Doe</p>
-            <p>Phone number: 07xxxxxxxx</p>
-            <p>Account Number: L0-00JD</p>
-          </div>
-          <form action="/signin" method="get" id="first">
-            <p class="error hidden" id="error1"></p>
-            <input type="text" t name="fname" placeholder="First name" required />
-            <input type="text" name="lname" placeholder="Second name" required />
-            <input type="tel" name="phone" placeholder="Phone number" required />
-            <input type="text" name="account" placeholder="Account no" required />
-            <input class="send" id="send1" type="submit" value="Verify details" />
-          </form>
-          <div style="grid-row: 2; grid-column: 3">
-            <p>Enter details that you will use to login to your account</p>
-          </div>
-          <form
-            id="second"
-            action="/signin"
-            method="post"
-            style="grid-row: 2; grid-column: 2"
-          >
-            <p class="error hidden" id="error2"></p>
-            <input
-              id="user"
-              type="text"
-              name="username"
-              placeholder="Username"
-              disabled
-            />
-            <input
-              id="pass1"
-              type="password"
-              name="password"
-              placeholder="Password"
-              important
-              required
-              disabled
-            />
-            <input
-              id="pass2"
-              type="password"
-              name="cpassword"
-              placeholder="Confirm password"
-              required
-              disabled
-            />
-            <input
-              disabled
-              id="em"
-              type="email"
-              name="email"
-              placeholder="Email Optional"
-            />
-            <input
-              disabled
-              class="send"
-              id="send2"
-              type="submit"
-              value="Create account"
-            />
-          </form>
-          <script>
-            ////////////////////////////////////////////////////////
-            //get elements from document
-      >>>>>>> d3a5b5155bfe1bb2adff19a492ae22a60c1337ee
-            const pass1 = document.getElementById("pass1");
-            const pass2 = document.getElementById("pass2");
-            const user = document.getElementById("user");
-            const email = document.getElementById("em");
-            const form1 = document.getElementById("first");
-            const form2 = document.getElementById("second");
-            const error = document.getElementById("error2");
-            const error2 = document.getElementById("error1");
-            const submitbtn2 = document.getElementById("send2");
-            const submitbtn1 = document.getElementById("send1");
-            /////////////////////////////////////////////////////
-            //define functions to be used
-            //check value for inputs if have unnecessary symbols prevent SQL injection
-            const clean = (element) => {
-              var cnstrc = element.value.match(/[^0-9a-z ]/gi);
-              console.log(cnstrc);
-            };
-            //disable html elements from editing
-            const disable = (element) => {
-              element.setAttribute("disabled", true);
-            };
-            //enable html elements for editing
-            const enable = (element) => {
-              element.removeAttribute("disabled");
-            };
-            /////////////////////////////////////////////////////
-            //defining event listeners for web interaction
-            submitbtn1.addEventListener("click", function (e) {
-              e.preventDefault();
-              //get data from form once submitted
-              const formdata = new FormData(form1);
-              const values = [...formdata.entries()];
-              submit();
-            });
-            //TODO try AJAX xmlhttprequest
-            //TODO fetch api for config of verification of details
-            submitbtn2.addEventListener("click", function (e) {
-              e.preventDefault();
-              try {
-                let response = fetch("/signin", {
-                  method: "POST",
-                  headers: { "content-Type": "application/json" },
-                  body: JSON.stringify({ ...[...new FormData(form2).values()] }),
-                }).then(function (response) {
-                  if (response.redirected) {
-                    window.location.href = response.url;
-                  }
-                });
-              } catch (error) {
-                console.log(error);
-              }
-            });
-            const submit = async () => {
-              try {
-                let response = await fetch("/trial", {
-                  method: "POST",
-                  headers: { "content-Type": "application/json" },
-                  body: JSON.stringify({ ...[...new FormData(form1).values()] }),
-                }).then(function (response) {
-                  if (response.status !== 200) {
-                    console.log("ALARRRMM!!!");
-                    return;
-                  }
-                  response.json().then(function (data) {
-                    //TODO check message that is received
-                    console.log(data["message"]);
-                    if (data["message"] == "success") {
-                      submitbtn1.classList.remove("send");
-                      submitbtn1.classList.add("accept");
-                      error2.classList.add("hidden");
-                      for (let i = 1; i < 6; i++) {
-                        enable(form2.children.item(i));
-                        //clean(form1.children.item(i));
-                        disable(form1.children.item(i));
-                      }
-                    } else if (data["message"] == "error") {
-                      error2.innerHTML =
-                        "incorrect details or You already have an account";
-                    }
-                    error2.classList.remove("hidden");
-                  });
-                });
-                //const result = await response.json();
-                //console.log(result);
-              } catch (error) {
-                console.log("there is an error!!!!", error);
-              }
-            };
-            email.addEventListener("keyup", function () {
-              if (email.value != "") {
-                if (email.value.match(/[^@]+@[^@]+\.[^@]+/) == null) {
-                  email.classList.add("pass2");
-      <<<<<<< HEAD
-                  console.log("invalid email address");
-                  error.innerHTML = "invalid email address";
-                  error.classList.remove("hidden");
+      ////////////////////////////////////////////////////////
+      //get elements from document
+      const pass1 = document.getElementById("pass1");
+      const pass2 = document.getElementById("pass2");
+      const user = document.getElementById("user");
+      const email = document.getElementById("em");
+      const form1 = document.getElementById("first");
+      const form2 = document.getElementById("second");
+      const error = document.getElementById("error2");
+      const error2 = document.getElementById("error1");
+      const submitbtn2 = document.getElementById("send2");
+      const submitbtn1 = document.getElementById("send1");
+      /////////////////////////////////////////////////////
+      //define functions to be used
+      //check value for inputs if have unnecessary symbols prevent SQL injection
+      const clean = (element) => {
+        var cnstrc = element.value.match(/[^0-9a-z ]/gi);
+        console.log(cnstrc);
+      };
+      //disable html elements from editing
+      const disable = (element) => {
+        element.setAttribute("disabled", true);
+      };
+      //enable html elements for editing
+      const enable = (element) => {
+        element.removeAttribute("disabled");
+      };
+      /////////////////////////////////////////////////////
+      //defining event listeners for web interaction
+      submitbtn1.addEventListener("click", function (e) {
+        e.preventDefault();
+        //get data from form once submitted
+        const formdata = new FormData(form1);
+        const values = [...formdata.entries()];
+        submit();
+      });
+      //TODO try AJAX xmlhttprequest
+      //TODO fetch api for config of verification of details
+      submitbtn2.addEventListener("click", function (e) {
+        e.preventDefault();
+        try {
+          let response = fetch("/signin", {
+            method: "POST",
+            headers: { "content-Type": "application/json" },
+            body: JSON.stringify({ ...[...new FormData(form2).values()] }),
+          }).then(function (response) {
+            if (response.redirected) {
+              window.location.href = response.url;
+            }
+          });
+        } catch (error) {
+          console.log(error);
+        }
+      });
+      const submit = async () => {
+        try {
+          let response = await fetch("/trial", {
+            method: "POST",
+            headers: { "content-Type": "application/json" },
+            body: JSON.stringify({ ...[...new FormData(form1).values()] }),
+          }).then(function (response) {
+            if (response.status !== 200) {
+              console.log("ALARRRMM!!!");
+              return;
+            }
+            response.json().then(function (data) {
+              //TODO check message that is received
+              console.log(data["message"]);
+              if (data["message"] == "success") {
+                submitbtn1.classList.remove("send");
+                submitbtn1.classList.add("accept");
+                error2.classList.add("hidden");
+                for (let i = 1; i < 6; i++) {
+                  enable(form2.children.item(i));
+                  //clean(form1.children.item(i));
+                  disable(form1.children.item(i));
                 }
-              } else if (email.value == "") {
-                email.classList.remove("pass2");
-                error.classList.add("hidden");
-      =======
-                  error.innerHTML = "invalid email address";
-                  error.classList.remove("hidden");
-                  disable(submitbtn2);
-                } else {
-                  email.classList.remove("pass2");
-                  error.classList.add("hidden");
-                  enable(submitbtn2);
-                }
-              } else {
-                email.classList.remove("pass2");
-                error.classList.add("hidden");
-                enable(submitbtn2);
-      >>>>>>> d3a5b5155bfe1bb2adff19a492ae22a60c1337ee
+              } else if (data["message"] == "error") {
+                error2.innerHTML =
+                  "incorrect details or You already have an account";
               }
+              error2.classList.remove("hidden");
             });
-            user.addEventListener("keyup", function () {
-              if (user.value.match(/[^0-9a-z ]/gi) != null) {
-      <<<<<<< HEAD
-                console.log("username should not contain symbols");
-                error.innerHTML = "username should not contain symbols";
-                error.classList.remove("hidden");
-              } else {
-                error.classList.add("hidden");
-      =======
-                error.innerHTML = "username should not contain symbols";
-                error.classList.remove("hidden");
-                disable(submitbtn2);
-              } else {
-                error.classList.add("hidden");
-                enable(submitbtn2);
-      >>>>>>> d3a5b5155bfe1bb2adff19a492ae22a60c1337ee
-              }
-            });
-            pass1.addEventListener("keyup", function () {
-              value = pass1.value;
-              val2 = pass2.value;
-              if (value != val2) {
-                pass2.classList.add("pass2");
-              } else {
-                pass2.classList.remove("pass2");
-              }
-            });
-            pass2.addEventListener("keyup", function () {
-              value = pass1.value;
-              val2 = pass2.value;
-              if (value != val2) {
-                pass2.classList.add("pass2");
-                error.innerHTML = "passwords do not match";
-                error.classList.remove("hidden");
-      <<<<<<< HEAD
-              } else {
-                error.classList.add("hidden");
-                pass2.classList.remove("pass2");
-      =======
-                disable(submitbtn2);
-              } else {
-                error.classList.add("hidden");
-                pass2.classList.remove("pass2");
-                enable(submitbtn2);
-      >>>>>>> d3a5b5155bfe1bb2adff19a492ae22a60c1337ee
-              }
-            });
+          });
+          //const result = await response.json();
+          //console.log(result);
+        } catch (error) {
+          console.log("there is an error!!!!", error);
+        }
+      };
+      email.addEventListener("keyup", function () {
+        if (email.value != "") {
+          if (email.value.match(/[^@]+@[^@]+\.[^@]+/) == null) {
+            email.classList.add("pass2");
+            console.log("invalid email address");
+            error.innerHTML = "invalid email address";
+            error.classList.remove("hidden");
+          }
+        } else if (email.value == "") {
+          email.classList.remove("pass2");
+          error.classList.add("hidden");
+          error.innerHTML = "invalid email address";
+          error.classList.remove("hidden");
+          disable(submitbtn2);
+        } else {
+          email.classList.remove("pass2");
+          error.classList.add("hidden");
+          enable(submitbtn2);
+        }
+      });
+      user.addEventListener("keyup", function () {
+        if (user.value.match(/[^0-9a-z ]/gi) != null) {
+          console.log("username should not contain symbols");
+          error.innerHTML = "username should not contain symbols";
+          error.classList.remove("hidden");
+        } else {
+          error.classList.add("hidden");
+          error.innerHTML = "username should not contain symbols";
+          error.classList.remove("hidden");
+          disable(submitbtn2);
+        }
+      });
+      pass1.addEventListener("keyup", function () {
+        value = pass1.value;
+        val2 = pass2.value;
+        if (value != val2) {
+          pass2.classList.add("pass2");
+        } else {
+          pass2.classList.remove("pass2");
+        }
+      });
+      pass2.addEventListener("keyup", function () {
+        value = pass1.value;
+        val2 = pass2.value;
+        if (value != val2) {
+          pass2.classList.add("pass2");
+          error.innerHTML = "passwords do not match";
+          error.classList.remove("hidden");
+        } else {
+          error.classList.add("hidden");
+          pass2.classList.remove("pass2");
+          disable(submitbtn2);
+        }
+      });
     </script>
   </body>
 </html>
