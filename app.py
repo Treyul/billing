@@ -1,10 +1,8 @@
 from flask import Flask, make_response,render_template,request,redirect,session,jsonify
 from flask_session import Session
 from flask_mysqldb import MySQL
-from flask_restful import Resource,Api
 from hashlib import sha512
 import MySQLdb.cursors
-import twilio
 import re
 
 # set up the application
@@ -26,7 +24,6 @@ app.config['SESSION_TYPE'] = 'filesystem'
 Session(app)
 
 # initialize api 
-api = Api(app)
 
 # create api 
 # class user(Resource):
