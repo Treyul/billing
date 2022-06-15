@@ -4,4 +4,5 @@ flask_session
 twilio
 flask_security_too
 flask_mysqldb
-MySQL-python
+mysqlclient
+# MySQL-python
