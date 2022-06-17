@@ -21,7 +21,7 @@ app.config["MYSQL_USER"] = "bef134615a5bbe"
 app.config["MYSQL_PASSWORD"] = "70b6c7f2"
 app.config["MYSQL_DB"] = "heroku_ba6afcca4de000d"
 mysql = MySQL(app)
-mysql.init_app(app)
+# mysql.init_app(app)
 
 # mysql = MySQL(app)
 
