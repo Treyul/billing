@@ -16,11 +16,11 @@ app = Flask(__name__)
 # app.config["MYSQL_USER"] = "root"
 # app.config["MYSQL_PASSWORD"] = "Treyul@18"
 # app.config["MYSQL_DB"] = "water_billing"
-mysql = MySQL()
-app.config["MYSQL_DATABASE_USER"] = "bef134615a5bbe"
-app.config["MYSQL_DATABASE_PASSWORD"] = "70b6c7f2"
-app.config["MYSQL_DATABASE_DB"] = "heroku_ba6afcca4de000d"
-app.config["MYSQL_DATABASE_HOST"] = "us-cdbr-east-05.cleardb.net"
+app.config["MYSQL_HOST"] = "us-cdbr-east-05.cleardb.net"
+app.config["MYSQL_USER"] = "bef134615a5bbe"
+app.config["MYSQL_PASSWORD"] = "70b6c7f2"
+app.config["MYSQL_DB"] = "heroku_ba6afcca4de000d"
+mysql = MySQL(app)
 mysql.init_app(app)
 
 # mysql = MySQL(app)
@@ -49,20 +49,23 @@ def index():
 def login():
     if request.method == "POST":
         #get details submitted
+        print(request.form)
         name = request.form.get("username")
         password = sha512(request.form.get("password").encode()).hexdigest()
         db = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
         details= (name,password)
         db.execute('SELECT * FROM loggins WHERE username = %s AND password = %s;',details)
         acc = db.fetchone()
-        db.execute("select column_name from information_schema.columns where table_name = N'loggins'")
-        print(db.fetchall())
+        # db.execute("select column_name from information_schema.columns where table_name = N'loggins'")
+        # print(db.fetchall())
+        db.close()
     # # TODO if user does not exist
     # # TODO wrong password
         if not acc:
             print('user does not exist')
     # # TODO if password and username match
         else:
+            print("here")
             session['logged_in'] = True
             return render_template("index.html",name = name)
     return render_template('login.html')
