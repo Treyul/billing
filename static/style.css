@@ -70,6 +70,18 @@ legend {
 .la:hover {
   color: rgba(102, 173, 240, 0.678);
 }
+/*/////////////////////////////////////////////*/
+/* Style for index page */
+li {
+  display: inline;
+  margin: 1rem;
+}
+ul {
+  list-style-type: none;
+  text-align: center;
+  margin: 1rem;
+  padding: 10px;
+}
 /* Styles fot the main App */
 .App {
   max-width: 80%;
@@ -219,7 +231,6 @@ legend {
 }
 .cnts {
   text-decoration: none;
-  margin: 1rem;
   padding: 5px 0px;
 }
 .cnts:hover {

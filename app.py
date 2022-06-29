@@ -2,7 +2,6 @@ from flask import Flask, make_response,render_template,request,redirect,session,
 from flask_session import Session
 from flask_mysqldb import MySQL
 from hashlib import sha512
-# from db import mysql
 import MySQLdb.cursors
 import re
 
@@ -21,53 +20,41 @@ app.config["MYSQL_USER"] = "bef134615a5bbe"
 app.config["MYSQL_PASSWORD"] = "70b6c7f2"
 app.config["MYSQL_DB"] = "heroku_ba6afcca4de000d"
 mysql = MySQL(app)
-# mysql.init_app(app)
-
-# mysql = MySQL(app)
 
 # configure the session 
 app.config['SESSION_PERMANENT']= False
 app.config['SESSION_TYPE'] = 'filesystem'
 Session(app)
 
-# initialize api 
-
-# create api 
-# class user(Resource):
-#     def post(self,name):
-#         return
 # set up for routing
 @app.route("/")
 def index():
     # check if user is logged in
     if not session.get('logged_in'):
         return redirect('/login')
-    # if user is not logged in redirect
-    return render_template("index.html")
+    # if user is logged render home page
+    return render_template("index.html",name=session['name'])
 
 @app.route("/login",methods=['POST','GET'])
 def login():
     if request.method == "POST":
         #get details submitted
-        print(request.form)
         name = request.form.get("username")
         password = sha512(request.form.get("password").encode()).hexdigest()
         db = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
         details= (name,password)
-        db.execute('SELECT * FROM loggins WHERE username = %s AND password = %s;',details)
+        db.execute('SELECT username FROM loggins WHERE username = %s and password = %s;',(details))
         acc = db.fetchone()
-        # db.execute("select column_name from information_schema.columns where table_name = N'loggins'")
-        # print(db.fetchall())
-        db.close()
-    # # TODO if user does not exist
-    # # TODO wrong password
+      # # TODO wrong password
+      # # TODO if user does not exist
         if not acc:
             print('user does not exist')
-    # # TODO if password and username match
+      # # TODO if password and username match
         else:
-            print("here")
             session['logged_in'] = True
+            session['name'] = name
             return render_template("index.html",name = name)
+        db.close()
     return render_template('login.html')
 
 phone = 0
