@@ -296,3 +296,22 @@ ul {
   font-family: cambria;
   letter-spacing: 1.5px;
 }
+@media (max-width: 400px) {
+  .logs {
+    text-align: center;
+    width: 15em;
+  }
+  .logs:focus-visible {
+    outline: none;
+    border-bottom: 1.5px solid rgba(28, 48, 228, 0.645);
+  }
+  legend {
+    width: 75%;
+    margin: auto;
+  }
+  hr {
+    width: 80%;
+  }
+}
+@media (min-width: 401px) and (max-width: 650px) {
+}

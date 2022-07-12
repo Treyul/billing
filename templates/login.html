@@ -1,10 +1,10 @@
 {% extends "layout.html" %} {% block body %}
 <div class="loginPage">
   <legend>Premalite Water Supply Management</legend>
-  <hr style="width: 60%; margin-bottom: 50px; margin-top: 0px" />
+  <hr style="margin-bottom: 50px; margin-top: 0px" />
   <!-- change into animation fading out -->
   <div class="hidden" id="error">Incorrect Password</div>
-  <form action="/login" method="post">
+  <form id="login_form" action="/login" method="post" -->
     <input
       type="text"
       placeholder="Username"
@@ -24,7 +24,7 @@
       required
     /><br /><br />
     <div class="center">
-      <input class="login" value="Log in" type="submit" />
+      <input id="lgn" class="login" value="Log in" type="submit" />
     </div>
   </form>
   <a href="recoverpassord.html" class="la"><p>Forgot your password?</p></a

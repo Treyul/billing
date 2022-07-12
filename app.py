@@ -1,6 +1,7 @@
 from flask import Flask, make_response,render_template,request,redirect,session,jsonify
 from flask_session import Session
 from flask_mysqldb import MySQL
+from datetime import datetime
 from hashlib import sha512
 import MySQLdb.cursors
 import re
@@ -10,7 +11,7 @@ app = Flask(__name__)
 
 # app.secret_key= 'treyulwito'
 
-#db connection details
+# db connection details
 # app.config["MYSQL_HOST"] = "localhost"
 # app.config["MYSQL_USER"] = "root"
 # app.config["MYSQL_PASSWORD"] = "Treyul@18"
@@ -26,6 +27,9 @@ app.config['SESSION_PERMANENT']= False
 app.config['SESSION_TYPE'] = 'filesystem'
 Session(app)
 
+# get time details that is month and year
+months = ["Jan","Feb","Mar","Apr","May","June","Jul","Aug","Sept","Oct","Nov","Dec"]
+month_data = int(datetime.now().strftime("%m"))
 # set up for routing
 @app.route("/")
 def index():
@@ -35,27 +39,42 @@ def index():
     # if user is logged render home page
     return render_template("index.html",name=session['name'])
 
-@app.route("/login",methods=['POST','GET'])
+@app.route("/login",methods=["POST","GET"])
 def login():
-    if request.method == "POST":
-        #get details submitted
-        name = request.form.get("username")
-        password = sha512(request.form.get("password").encode()).hexdigest()
-        db = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-        details= (name,password)
-        db.execute('SELECT username FROM loggins WHERE username = %s and password = %s;',(details))
+    db = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    if request.method == 'POST':
+        print(request.method)
+        login_data = request.get_json()
+        print(type(login_data))
+        print(login_data["0"])
+        username = login_data["0"]
+        print(login_data["1"],"first ryun")
+        password = sha512(login_data["1"].encode()).hexdigest()
+        details = (username,password)
+        db.execute("SELECT account FROM loggins WHERE username = %s AND password = %s;",details)
         acc = db.fetchone()
-      # # TODO wrong password
-      # # TODO if user does not exist
+        print(acc)
         if not acc:
-            print('user does not exist')
-      # # TODO if password and username match
+            return make_response(jsonify({"message":"Null"}),200)
         else:
-            session['logged_in'] = True
-            session['name'] = name
-            return render_template("index.html",name = name)
-        db.close()
-    return render_template('login.html')
+            session["logged_in"] = True
+            session["name"] = username
+            details = (acc["account"],)
+            db.execute(f"SELECT `5-{months[month_data-2]}`,`5-{months[month_data-3]}` FROM readings WHERE  account = %s;",details)
+            readings = list(db.fetchall())
+            currentReading = readings[0]["5-June"]
+            previousReading = readings[0]["5-May"]
+            print(readings[0]["5-June"])
+            db.execute(f"SELECT june FROM payments WHERE june IS NOT NULL AND accounts = %s",details)
+            payments = list(db.fetchall())
+            paymentOne = payments[0]["june"]
+            paymentTwo = payments[1]["june"]
+            return make_response(jsonify({"message":"success","previousreading":f"{previousReading}","currentreading":f"{currentReading}","payment1":f"{paymentOne}","payment2":f"{paymentTwo}"}),200)
+
+    return  render_template('login.html')
+
+
+
 
 phone = 0
 account = ""
