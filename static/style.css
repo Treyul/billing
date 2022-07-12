@@ -145,7 +145,6 @@ ul {
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  line-height: 2rem;
   height: 2rem;
   padding: 0px 1rem;
   border-bottom: 1px solid rgba(41, 41, 41, 0.8);
@@ -165,6 +164,7 @@ ul {
 .value {
   border-left: 2px solid rgba(41, 41, 41, 0.8);
   padding-left: 2rem;
+  line-height: 2rem;
 }
 .main {
   margin-top: 3rem;
@@ -297,6 +297,16 @@ ul {
   letter-spacing: 1.5px;
 }
 @media (max-width: 400px) {
+  .allrow {
+    font-size: 0.9em;
+  }
+  .App {
+    display: flex;
+    flex-direction: column;
+  }
+  .bill {
+    margin: 15px 0px;
+  }
   .logs {
     text-align: center;
     width: 15em;
@@ -305,12 +315,22 @@ ul {
     outline: none;
     border-bottom: 1.5px solid rgba(28, 48, 228, 0.645);
   }
+  .value {
+    width: 2.75em;
+    text-align: right;
+    line-height: 2rem;
+    padding: 0px 0.75em;
+  }
+  form {
+    text-align: center;
+    width: auto;
+  }
+  hr {
+    width: 90%;
+  }
   legend {
     width: 75%;
     margin: auto;
-  }
-  hr {
-    width: 80%;
   }
 }
 @media (min-width: 401px) and (max-width: 650px) {
