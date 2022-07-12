@@ -16,7 +16,7 @@ const form = document.getElementById("login_form");
 ////get data from session storage for main page
 const prevreading = sessionStorage.getItem("previous");
 const curreading = sessionStorage.getItem("current");
-const payments = sessionStorage.getItem("payment1").split(",");
+const payments = sessionStorage.getItem("payment1");
 const consumed = curreading - prevreading;
 
 ////////////////////////////////
