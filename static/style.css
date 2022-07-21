@@ -297,6 +297,9 @@ ul {
   letter-spacing: 1.5px;
 }
 @media (max-width: 400px) {
+  #error {
+    width: 80%;
+  }
   .allrow {
     font-size: 0.9em;
   }
@@ -306,6 +309,9 @@ ul {
   }
   .bill {
     margin: 15px 0px;
+  }
+  .main {
+    margin-top: 0px;
   }
   .logs {
     text-align: center;
@@ -320,6 +326,10 @@ ul {
     text-align: right;
     line-height: 2rem;
     padding: 0px 0.75em;
+  }
+  #results {
+    display: flex;
+    flex-direction: column;
   }
   form {
     text-align: center;

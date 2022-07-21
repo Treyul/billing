@@ -1,4 +1,4 @@
-"use strict";
+// "use strict";
 /////////////////////////////////
 ////functions
 const Decimal = (params) => {
@@ -6,8 +6,8 @@ const Decimal = (params) => {
 };
 /////////////////////////////////
 ////html elements from index
-const BillContainer = document.querySelector(".bill");
-const PaymentContainer = document.querySelector(".payments");
+// const BillContainer = document.querySelector(".bill");
+// const PaymentContainer = document.querySelector(".payments");
 ////html elements from login
 const loginbtn = document.getElementById("lgn");
 const form = document.getElementById("login_form");
@@ -18,29 +18,6 @@ const prevreading = sessionStorage.getItem("previous");
 const curreading = sessionStorage.getItem("current");
 const payments = sessionStorage.getItem("payment1");
 const consumed = curreading - prevreading;
-
-////////////////////////////////
-////load html template into document
-// PaymentContainer.insertAdjacentHTML(
-//   "afterbegin",
-//   `<div class="allrow heading">Payments</div><div class="allrow">${payments[2].slice(
-//     0,
-//     10
-//   )}<p id="middle">${payments[1]}</p><p>${payments[0]}</p></div>`
-// );
-// BillContainer.insertAdjacentHTML(
-//   "afterbegin",
-//   ` <div class="allrow heading">As of 5th of June 2021</div>
-//   <div class="allrow">Current Reading <p class="value">${curreading}</p></div>
-//   <div class="allrow">Previous meter Reading<p class="value">${prevreading}</p></div>
-//   <div class="allrow">Consumed water units<p class="value">${consumed}</p></div>
-//   <div class="allrow">Current bill <p class="value">${
-//     consumed * 130 + 50
-//   }</p></div>
-//   <div class="allrow">  Balance carried forward<p class="value">0</p></div>
-//   <div class="allrow">Total bill <p class="value">${1800}</p>
-//   </div>`
-// );
 
 ////////////////////////////////
 ////html templates
@@ -60,7 +37,16 @@ const login = async () => {
       }
       response.json().then(function (data) {
         //get response from server
-        if (data["message"] == "null") {
+        if (data["message"] == "Null") {
+          const error = document.getElementById("error");
+          const user = document.getElementById("user");
+          const pass = document.getElementById("pass");
+          error.classList.remove("hidden");
+          user.value = "";
+          pass.value = "";
+          user.blur();
+          pass.blur();
+
           console.log("user does not exist");
         } else if (data["message"] == "success") {
           console.log(data["previousReading"]);
@@ -68,7 +54,6 @@ const login = async () => {
           sessionStorage.setItem("previous", `${data["previousreading"]}`);
           sessionStorage.setItem("current", `${data["currentreading"]}`);
           sessionStorage.setItem("payment1", `${data["payment1"]}`);
-          sessionStorage.setItem("payment2", `${data["payment2"]}`);
           window.location.href = "/";
           // BillContainer.insertAdjacentHTML("afterbegin", BillHtml);
           console.log("passed redirect");

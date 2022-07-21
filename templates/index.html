@@ -1,5 +1,5 @@
-{% extends "layout.html" %} {% block body %}
-<p>Welcome {{name}}</p>
+{% extends "layout.html" %}
+{%block script %}<script defer src="/static/indscript.js"></script> {% endblock %} {% block body %}
 <div class="main">
   <p id="name">Welcome {{name}}</p>
   <main class="App">
@@ -33,37 +33,12 @@
       </li>
       <li><i class="fa-brands fa-whatsapp"></i>
         <a href="" class="cnts">Whatsapp</a></li>
-    </ul>
-   <div class="center"> &copy 2021</div>
+      </ul>
+      <div class="center"> &copy 2021</div>
+    </div>
   </div>
-</div>
-<div class="display hidden" id="searchresults">
-  <span class="close" title="Close">&times;</span>
-  <div id="results"></div>
-</div>
-<script>
-  /////////////////////////
-const BillContainer = document.querySelector(".bill")
-const PaymentContainer = document.querySelector(".payments");
-
-  const prevreading = sessionStorage.getItem("previous")
-  const curreading = sessionStorage.getItem("current")
-  const payments = sessionStorage.getItem("payment1").split(",")
-  const consumed = curreading-prevreading
-  PaymentContainer.insertAdjacentHTML("afterbegin",`<div class="allrow heading">Payments</div><div class="allrow">${payments[2].slice(0,10)}<p id="middle">${payments[1]}</p><p>${payments[0]}</p></div>`)
-  BillContainer.insertAdjacentHTML("afterbegin", ` <div class="allrow heading">As of 5th of June 2021</div>
-  <div class="allrow">Current Reading <p class="value">${
-    curreading
-  }</p></div>
-  <div class="allrow">Previous meter Reading<p class="value">${
-    prevreading
-  }</p></div>
-  <div class="allrow">Consumed water units<p class="value">${
-    consumed
-  }</p></div>
-  <div class="allrow">Current bill <p class="value">${consumed*130+50}</p></div>
-  <div class="allrow">  Balance carried forward<p class="value">0</p></div>
-  <div class="allrow">Total bill <p class="value">${1800}</p>
-  </div>`)
-</script>
-{% endblock %}
+  <div class="display hidden" id="searchresults">
+    <span class="close" title="Close">&times;</span>
+    <div id="results"></div>
+  </div>
+  {% endblock %}

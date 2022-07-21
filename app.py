@@ -3,23 +3,24 @@ from flask_session import Session
 from flask_mysqldb import MySQL
 from datetime import datetime
 from hashlib import sha512
+from MySQLdb._exceptions import Error
 import MySQLdb.cursors
 import re
 
-# set up the application
+# TODO implement mpesa api and twilio api
 app = Flask(__name__)
 
 # app.secret_key= 'treyulwito'
 
 # db connection details
-# app.config["MYSQL_HOST"] = "localhost"
-# app.config["MYSQL_USER"] = "root"
-# app.config["MYSQL_PASSWORD"] = "Treyul@18"
-# app.config["MYSQL_DB"] = "water_billing"
-app.config["MYSQL_HOST"] = "us-cdbr-east-05.cleardb.net"
-app.config["MYSQL_USER"] = "bef134615a5bbe"
-app.config["MYSQL_PASSWORD"] = "70b6c7f2"
-app.config["MYSQL_DB"] = "heroku_ba6afcca4de000d"
+app.config["MYSQL_HOST"] = "localhost"
+app.config["MYSQL_USER"] = "root"
+app.config["MYSQL_PASSWORD"] = "Treyul@18"
+app.config["MYSQL_DB"] = "water_billing"
+# app.config["MYSQL_HOST"] = "us-cdbr-east-05.cleardb.net"
+# app.config["MYSQL_USER"] = "bef134615a5bbe"
+# app.config["MYSQL_PASSWORD"] = "70b6c7f2"
+# app.config["MYSQL_DB"] = "heroku_ba6afcca4de000d"
 mysql = MySQL(app)
 
 # configure the session 
@@ -28,9 +29,15 @@ app.config['SESSION_TYPE'] = 'filesystem'
 Session(app)
 
 # get time details that is month and year
-months = ["Jan","Feb","Mar","Apr","May","June","Jul","Aug","Sept","Oct","Nov","Dec"]
+MONTHS = ["Jan","Feb","Mar","Apr","May","June","Jul","Aug","Sept","Oct","Nov","Dec"]
 month_data = int(datetime.now().strftime("%m"))
+accounts = ""
 # set up for routing
+seconds = datetime.now().strftime("%S")
+while(seconds == 24):
+    print("it works")
+print(seconds)
+
 @app.route("/")
 def index():
     # check if user is logged in
@@ -41,6 +48,7 @@ def index():
 
 @app.route("/login",methods=["POST","GET"])
 def login():
+    global accounts
     db = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     if request.method == 'POST':
         print(request.method)
@@ -57,19 +65,21 @@ def login():
         if not acc:
             return make_response(jsonify({"message":"Null"}),200)
         else:
+            year = datetime.now().strftime("%Y")
+            accounts = acc["account"] 
             session["logged_in"] = True
             session["name"] = username
             details = (acc["account"],)
-            db.execute(f"SELECT `5-{months[month_data-2]}`,`5-{months[month_data-3]}` FROM readings WHERE  account = %s;",details)
+            db.execute(f"SELECT `5-{MONTHS[month_data-2]}-{year}`,`5-{MONTHS[month_data-3]}-{year}` FROM readings WHERE  account = %s;",details)
             readings = list(db.fetchall())
-            currentReading = readings[0]["5-June"]
-            previousReading = readings[0]["5-May"]
-            print(readings[0]["5-June"])
-            db.execute(f"SELECT june FROM payments WHERE june IS NOT NULL AND accounts = %s",details)
+            currentReading = readings[0]["5-June-2022"]
+            previousReading = readings[0]["5-May-2022"]
+            print(readings[0]["5-June-2022"])
+            db.execute(f"SELECT `June-2022` FROM payments WHERE `June-2022` IS NOT NULL AND accounts = %s",details)
             payments = list(db.fetchall())
-            paymentOne = payments[0]["june"]
-            paymentTwo = payments[1]["june"]
-            return make_response(jsonify({"message":"success","previousreading":f"{previousReading}","currentreading":f"{currentReading}","payment1":f"{paymentOne}","payment2":f"{paymentTwo}"}),200)
+            paymentOne = payments[0]["June-2022"]
+            # paymentTwo = payments[1]["June-2022"]
+            return make_response(jsonify({"message":"success","previousreading":f"{previousReading}","currentreading":f"{currentReading}","payment1":f"{paymentOne}"}),200)
 
     return  render_template('login.html')
 
@@ -78,6 +88,7 @@ def login():
 
 phone = 0
 account = ""
+# TODO before redirect delete user from users list
 @app.route('/signin',methods=["POST","GET"])
 def signin():
     db = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
@@ -146,3 +157,76 @@ def trial():
         return make_response(jsonify({"message":"success"}),200)
     res = make_response(jsonify({"message":"OK"}),200)
     return res
+
+# TODO catch date range error on the server side
+@app.route("/bills",methods=["POST","GET"])
+def bills():
+    global accounts
+    ResponseMessage = {"message":"success"}
+    db = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    req = request.get_json()
+    year = datetime.now().strftime("%Y")
+    details = (accounts,)
+    Start_year = req[0]
+    Start_month = req[1]
+    End_year = req[2]
+    End_month = req[3]
+    readings = []
+    if Start_year == End_year :
+        ResponseMessage["y"+str(Start_year)] =[]
+        while End_month >= Start_month:
+            try:
+                db.execute(f"SELECT `5-{MONTHS[Start_month-1]}-{Start_year}` FROM readings WHERE account = %s;",details)
+                reading = db.fetchone()
+                read = reading[f"5-{MONTHS[Start_month-1]}-{year}"]
+                ResponseMessage["y"+str(Start_year)].append(read)
+                print(read)
+                readings.append(read)
+                Start_month=Start_month+1
+            except Error as e:
+                print("Error code: ",e.args)
+                print("Error message: ",e.__cause__)
+                print("Error: ",e)
+                Start_month = Start_month + 1
+                continue
+    print(ResponseMessage)
+    print(req)
+    print(readings)
+    return make_response(jsonify(ResponseMessage),200)
+
+
+@app.route("/payment",methods=["POST","GET"])
+def payment():
+    global accounts
+    Response_Message = {"message":"success"}
+    db = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    req = request.get_json()
+    print(req)
+    year = datetime.now().strftime("%Y")
+    Start_year = req[0]
+    Start_month = req[1]
+    End_year = req[2]
+    End_month = req[3]
+    details = (accounts,)
+    Response_Message["payments"] =[]
+    try:
+        if Start_year == End_year:
+            while End_month >= Start_month:
+                try:
+                    db.execute(f"SELECT `{MONTHS[Start_month-1]}-{Start_year}` FROM payments WHERE `{MONTHS[Start_month-1]}-{Start_year}` IS NOT NULL AND accounts = %s",details)
+                    payment = list(db.fetchall())
+                    pay = payment[0][f"{MONTHS[Start_month-1]}-{Start_year}"]
+                    Response_Message["payments"].append(pay)
+                # Response_Message.append(pay)
+                    Start_month = Start_month + 1
+                except Error:
+                    print(Error)
+                    Start_month = Start_month + 1  
+                    continue
+    except Error as e:
+        print("Error code: ",e.args)
+        print("Error message: ",e)
+        print("Error: ",e)
+        Response_Message["message"] = "Error"
+        return make_response(jsonify(Response_Message),200)
+    return make_response(jsonify(Response_Message),200)
