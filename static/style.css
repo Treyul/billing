@@ -72,6 +72,7 @@ legend {
 }
 /*/////////////////////////////////////////////*/
 /* Style for index page */
+
 li {
   display: inline;
   margin: 1rem;
@@ -82,7 +83,20 @@ ul {
   margin: 1rem;
   padding: 10px;
 }
-/* Styles fot the main App */
+/* Styles for the menu */
+#menu {
+  position: absolute;
+  background: darkgrey;
+  height: 45%;
+  opacity: 0.95;
+  width: 18rem;
+  padding-left: 1.5rem;
+  color: black;
+  margin-right: 2.5rem;
+  border-radius: 2% 35%;
+}
+
+/* Styles for the main App */
 .App {
   max-width: 80%;
   display: grid;
@@ -132,13 +146,16 @@ ul {
   line-height: 2rem;
   height: 2rem;
 }
+#viewmenu {
+  display: none;
+}
 #name {
-  font-size: xx-large;
+  font-size: x-large;
   letter-spacing: 2px;
   font-family: sans-serif;
-  padding: 30px;
-  margin-left: 20px;
+  padding: 0px 30px 30px 3rem;
   font-weight: bold;
+  margin: 0px 0px 0px 2rem;
 }
 .allrow {
   display: flex;
@@ -300,6 +317,18 @@ ul {
   #error {
     width: 80%;
   }
+  #name {
+    font-size: x-large;
+  }
+  #viewmenu {
+    display: block;
+    position: absolute;
+    z-index: 150;
+    padding-left: 1rem;
+    width: auto;
+    font-size: larger;
+    cursor: pointer;
+  }
   .allrow {
     font-size: 0.9em;
   }
@@ -309,9 +338,13 @@ ul {
   }
   .bill {
     margin: 15px 0px;
+    height: 16rem;
   }
   .main {
     margin-top: 0px;
+  }
+  .payments {
+    height: 10rem;
   }
   .logs {
     text-align: center;
@@ -321,11 +354,35 @@ ul {
     outline: none;
     border-bottom: 1.5px solid rgba(28, 48, 228, 0.645);
   }
+  .search {
+    margin: 2rem 0px;
+    padding: 5px 1rem;
+    transition: 1s all ease;
+    width: 75%;
+  }
+  .srcmain {
+    display: none;
+  }
+  .menubtn {
+    text-align: left;
+  }
+  .search:hover {
+    transform: translateY(-0.5rem);
+    background-color: darkblue;
+    transition: 2s all ease;
+    background-image: linear-gradient(45deg, #0e0d0d, transparent);
+  }
   .value {
     width: 2.75em;
     text-align: right;
     line-height: 2rem;
     padding: 0px 0.75em;
+  }
+  #first {
+    text-align: left;
+  }
+  #second {
+    text-align: left;
   }
   #results {
     display: flex;
@@ -344,4 +401,9 @@ ul {
   }
 }
 @media (min-width: 401px) and (max-width: 650px) {
+}
+@media (min-width: 401px) {
+  #viewmenu {
+    display: none;
+  }
 }

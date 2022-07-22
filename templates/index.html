@@ -1,23 +1,63 @@
+<!-- extend meta scripts and style data  -->
 {% extends "layout.html" %}
 {%block script %}<script defer src="/static/indscript.js"></script> {% endblock %} {% block body %}
+
+<!-- container containing all html to be rendered -->
 <div class="main">
+  <div 
+  id="viewmenu"
+">Menu
+</div>
+  <div class="hidden" id="menu"><p><span id="menuclose" style="cursor:pointer; float: right; padding-right:3.5rem;width:2rem;" title="Close">&times;</span></p>
+  <li>
+    <ul class="menubtn search">Account
+      <p style="
+    margin: 0.5rem 0px;
+">Outstanding bill</p>
+    <form action="/stkpush" method="post">
+    <input type="text" name="amount" placeholder="Amount" style="
+    border: none;
+    border-bottom: 1.5px solid;
+">
+<div class="center"><input id="pay" type="submit" value="pay bill" style="
+    margin-top: 5px;
+    border-radius: 15px;
+    width: 45%;
+    border: 1.5px green;
+    background: #139d13;
+"></div>
+    </form>
+    </ul>
+    <ul id="first" class="menubtn search">Search Bills</ul>
+    <ul id="second" class="menubtn search">Search Payments</ul>
+  </li>
+  </div>
   <p id="name">Welcome {{name}}</p>
   <main class="App">
+
+    <!-- notices container -->
     <div class="notices">
       <div class="notice">
         There are no Notices for the month of December <br />
         Consumer notice:There is a delay in your payment for this month
       </div>
     </div>
+
+    <!-- Bill container  -->
     <div class="bill" style="grid-column: 1/2; grid-row: 3 / span 9"></div>
+ 
+    <!-- payments container max three payments -->
     <div class="payments"></div>
     <div class="averages"></div>
-    <div id="first">
+
+    <!-- Buttons to implement searching of records -->
+    <div id="first" class="srcmain">
       <input type="button" value="Search previous bills" class="search" />
     </div>
-    <div id="second">
+    <div id="second" class="srcmain">
       <input type="button" value="Search Payments" class="search" />
     </div>
+
   </main>
   <!-- //create tab that will explain the stem and its features -->
   <!-- add this that should be on the contacts and info -->
@@ -37,7 +77,11 @@
       <div class="center"> &copy 2021</div>
     </div>
   </div>
+
+  <!-- container for the search results absolute position-->
   <div class="display hidden" id="searchresults">
+
+    <!-- closes the search results container  -->
     <span class="close" title="Close">&times;</span>
     <div id="results"></div>
   </div>

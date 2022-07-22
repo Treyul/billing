@@ -6,21 +6,9 @@ const Decimal = (params) => {
 };
 /////////////////////////////////
 ////html elements from index
-// const BillContainer = document.querySelector(".bill");
-// const PaymentContainer = document.querySelector(".payments");
-////html elements from login
+
 const loginbtn = document.getElementById("lgn");
 const form = document.getElementById("login_form");
-
-////////////////////////////////
-////get data from session storage for main page
-const prevreading = sessionStorage.getItem("previous");
-const curreading = sessionStorage.getItem("current");
-const payments = sessionStorage.getItem("payment1");
-const consumed = curreading - prevreading;
-
-////////////////////////////////
-////html templates
 
 //////////////////////////////
 ////login functions

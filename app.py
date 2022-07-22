@@ -1,11 +1,18 @@
 from flask import Flask, make_response,render_template,request,redirect,session,jsonify
+from flask_restful import Api, Resource, reqparse
+from requests.auth import HTTPBasicAuth
+from MySQLdb._exceptions import Error
 from flask_session import Session
 from flask_mysqldb import MySQL
+from twilio.rest import Client
 from datetime import datetime
 from hashlib import sha512
-from MySQLdb._exceptions import Error
 import MySQLdb.cursors
+import requests
+import base64
+import json
 import re
+import os
 
 # TODO implement mpesa api and twilio api
 app = Flask(__name__)
@@ -13,20 +20,28 @@ app = Flask(__name__)
 # app.secret_key= 'treyulwito'
 
 # db connection details
-# app.config["MYSQL_HOST"] = "localhost"
-# app.config["MYSQL_USER"] = "root"
-# app.config["MYSQL_PASSWORD"] = "Treyul@18"
-# app.config["MYSQL_DB"] = "water_billing"
-app.config["MYSQL_HOST"] = "us-cdbr-east-05.cleardb.net"
-app.config["MYSQL_USER"] = "bef134615a5bbe"
-app.config["MYSQL_PASSWORD"] = "70b6c7f2"
-app.config["MYSQL_DB"] = "heroku_ba6afcca4de000d"
+app.config["MYSQL_HOST"] = "localhost"
+app.config["MYSQL_USER"] = "root"
+app.config["MYSQL_PASSWORD"] = "Treyul@18"
+app.config["MYSQL_DB"] = "water_billing"
+# app.config["MYSQL_HOST"] = "us-cdbr-east-05.cleardb.net"
+# app.config["MYSQL_USER"] = "bef134615a5bbe"
+# app.config["MYSQL_PASSWORD"] = "70b6c7f2"
+# app.config["MYSQL_DB"] = "heroku_ba6afcca4de000d"
 mysql = MySQL(app)
 
 # configure the session 
 app.config['SESSION_PERMANENT']= False
 app.config['SESSION_TYPE'] = 'filesystem'
 Session(app)
+
+# 
+# app.config["API_ENVIRONMENT"] = "sandbox" #sandbox or live
+# app.config["APP_KEY"] = "h4P5d59ezEgGqWeZ0yKcHyJG8zARd6M5" # App_key from developers portal
+# app.config["APP_SECRET"] = "CZAcHUB9Bk9REXTg" #App_Secret from developers portal
+# mpesa_api=MpesaAPI()
+
+# api = Api(app)
 
 # get time details that is month and year
 MONTHS = ["Jan","Feb","Mar","Apr","May","June","Jul","Aug","Sept","Oct","Nov","Dec"]
@@ -37,6 +52,7 @@ seconds = datetime.now().strftime("%S")
 while(seconds == 24):
     print("it works")
 print(seconds)
+
 
 @app.route("/")
 def index():
@@ -86,7 +102,7 @@ def login():
 
 
 
-phone = 0
+phone = 0 
 account = ""
 # TODO before redirect delete user from users list
 @app.route('/signin',methods=["POST","GET"])
@@ -158,6 +174,7 @@ def trial():
     res = make_response(jsonify({"message":"OK"}),200)
     return res
 
+
 # TODO catch date range error on the server side
 @app.route("/bills",methods=["POST","GET"])
 def bills():
@@ -171,22 +188,32 @@ def bills():
     Start_month = req[1]
     End_year = req[2]
     End_month = req[3]
-    readings = []
+    readings = [] 
     if Start_year == End_year :
         ResponseMessage["y"+str(Start_year)] =[]
+        ResponseMessage["payments"] = []
         while End_month >= Start_month:
             try:
                 db.execute(f"SELECT `5-{MONTHS[Start_month-1]}-{Start_year}` FROM readings WHERE account = %s;",details)
                 reading = db.fetchone()
                 read = reading[f"5-{MONTHS[Start_month-1]}-{year}"]
                 ResponseMessage["y"+str(Start_year)].append(read)
-                print(read)
-                readings.append(read)
+                print(read) 
+                readings.append(read)  
+
+                if MONTHS.index(MONTHS[End_month-1]) >= MONTHS.index(MONTHS[Start_month]):
+                    db.execute(f"SELECT `{MONTHS[Start_month]}-{Start_year}` FROM payments WHERE `{MONTHS[Start_month]}-{Start_year}` IS NOT NULL AND accounts = %s",details)
+                    payment = list(db.fetchall())
+                    print(payment)
+                    pay = payment[0][f"{MONTHS[Start_month]}-{Start_year}"]
+                    ResponseMessage["payments"].append(pay)
                 Start_month=Start_month+1
+
             except Error as e:
                 print("Error code: ",e.args)
                 print("Error message: ",e.__cause__)
                 print("Error: ",e)
+                ResponseMessage["payments"].append("00")
                 Start_month = Start_month + 1
                 continue
     print(ResponseMessage)
@@ -215,6 +242,7 @@ def payment():
                 try:
                     db.execute(f"SELECT `{MONTHS[Start_month-1]}-{Start_year}` FROM payments WHERE `{MONTHS[Start_month-1]}-{Start_year}` IS NOT NULL AND accounts = %s",details)
                     payment = list(db.fetchall())
+                    print(payment)
                     pay = payment[0][f"{MONTHS[Start_month-1]}-{Start_year}"]
                     Response_Message["payments"].append(pay)
                 # Response_Message.append(pay)
@@ -230,3 +258,227 @@ def payment():
         Response_Message["message"] = "Error"
         return make_response(jsonify(Response_Message),200)
     return make_response(jsonify(Response_Message),200)
+   
+
+#get access token to initiate mpesa stk push
+def get_mpesa_token():
+
+    # token for my verfication to daraja portal
+    key = "h4P5d59ezEgGqWeZ0yKcHyJG8zARd6M5" 
+    secret = "CZAcHUB9Bk9REXTg" 
+
+    # api to send tokens to get access token
+    api_URL = "https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials"
+
+    # make a get request using python requests liblary
+    r = requests.get(api_URL, auth=HTTPBasicAuth(key,secret))
+
+    # return access_token from response
+    return r.json()['access_token']
+
+
+@app.route("/stkpush",methods=["POST","GET"])
+def mpesa_stk_push():
+    global accounts
+    amount = request.form.get("amount")
+
+    business_number = 174379
+     # get access_token
+    # access_token = get_mpesa_token()
+    access_token = "bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919"
+    # year 
+    year = datetime.now().strftime("%Y")
+    # month
+    mo = datetime.now().strftime("%m")
+    #date
+    d = datetime.now().strftime("%d")
+    # hour
+    h = datetime.now().strftime("%H")
+    # minutes
+    m = datetime.now().strftime("%M")
+    # seconds 
+    s = datetime.now().strftime("%S")
+    # timestamp
+    timestamp = f"{year}{mo}{d}{h}{m}{s}"
+
+    # encode data
+    encode_data = f"{business_number}{access_token}{timestamp}" 
+
+
+    # encode business_shortcode, online_passkey and current_time (yyyyMMhhmmss) to base64
+    passkey  = base64.b64encode(encode_data.encode())
+    print("here")
+
+        # make stk push
+    try:
+
+           
+
+            # stk_push request url
+            api_url = "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest"
+
+            # put access_token in request headers
+            headers = { "Authorization": f"Bearer {get_mpesa_token()}" ,"Content-Type": "application/json" }
+
+            # get phone and amount
+            # data = MakeSTKPush.parser.parse_args()
+
+            # define request body
+            print("here2")
+            req = {
+                "BusinessShortCode": business_number,
+                "Password": str(passkey)[2:-1],
+                "Timestamp": timestamp, # timestamp format: 20190317202903 yyyyMMhhmmss 
+                "TransactionType": "CustomerPayBillOnline",
+                "Amount": amount,
+                "PartyA": 254708374149,
+                "PartyB": business_number,
+                "PhoneNumber": 254708374149,
+                "CallBackURL": "http://127.0.0.1:5000/mpesaexp",
+                "AccountReference": "CompanyXLTD",
+                "TransactionDesc": "Payment of X"
+            }
+
+            # print(request) 
+            # make request and catch response
+            response = requests.post(api_url,json=req,headers=headers)
+            print(response)
+            print(response.text)
+            data = json.loads(response.text)
+            print("json data")
+            print(data)
+            # print(data[CheckoutRequestID])
+
+            # check response code for errors and return response
+            if response.status_code > 299:
+                return{
+                    "response":request,
+                    "success": False,
+                    "message":"Sorry, something went wrong please try again later 1."
+                },400
+
+            # CheckoutRequestID = response.text['CheckoutRequestID']
+            # print(CheckoutRequestID)
+
+
+            # Do something in your database e.g store the transaction or as an order
+            # make sure to store the CheckoutRequestID to identify the tranaction in 
+            # your CallBackURL endpoint.
+
+            # return a respone to your user
+            return redirect("/")
+            # return {
+            #     "data": json.loads(response.text)
+            # },200
+
+    except:
+            # catch error and return respones
+
+            return {
+                "success":False,
+                "message":"Sorry something went wrong please try again."
+            },400
+
+
+
+# @app.route("/pay",methods=["POST","GET"])
+# def pay():
+#         print(f"this is the amount: {amt}")
+#         return redirect("/")
+
+# class MakeSTKPush(Resource):
+
+#     # get 'phone' and 'amount' from request body
+#     parser = reqparse.RequestParser()
+#     parser.add_argument('phone',
+#             type=str,
+#             required=True,
+#             help="This fied is required")
+
+#     parser.add_argument('amount',
+#             type=str,
+#             required=True,
+#             help="this fied is required")
+
+#     # make stkPush method
+#     def get(self):
+
+#         """ make and stk push to daraja API"""
+
+#         encode_data = b"<Business_shortcode><online_passkey><current timestamp>" 
+
+#         # encode business_shortcode, online_passkey and current_time (yyyyMMhhmmss) to base64
+#         passkey  = base64.b64encode(encode_data)
+#         print("here")
+
+#         # make stk push
+#         try:
+
+#             # get access_token
+#             access_token = get_mpesa_token()
+
+#             # stk_push request url
+#             api_url = "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest"
+
+#             # put access_token in request headers
+#             headers = { "Authorization": f"Bearer {access_token}" ,"Content-Type": "application/json" }
+
+#             # get phone and amount
+#             data = MakeSTKPush.parser.parse_args()
+
+#             # define request body
+#             request = {
+#                 "BusinessShortCode": "<business_shortCode>",
+#                 "Password": str(passkey)[2:-1],
+#                 "Timestamp": "<timeStamp>", # timestamp format: 20190317202903 yyyyMMhhmmss 
+#                 "TransactionType": "CustomerPayBillOnline",
+#                 "Amount": data['amount'],
+#                 "PartyA": data['phone'],
+#                 "PartyB": "<business_shortCode>",
+#                 "PhoneNumber": data['phone'],
+#                 "CallBackURL": "<YOUR_CALLBACK_URL>",
+#                 "AccountReference": "UNIQUE_REFERENCE",
+#                 "TransactionDesc": ""
+#             }
+
+#             # print(request)
+#             # make request and catch response
+#             response = requests.post(api_url,json=request,headers=headers)
+
+#             # check response code for errors and return response
+#             if response.status_code > 299:
+#                 return{
+#                     "response":request,
+#                     "success": False,
+#                     "message":"Sorry, something went wrong please try again later 1."
+#                 },400
+
+#             # CheckoutRequestID = response.text['CheckoutRequestID']
+
+#             # Do something in your database e.g store the transaction or as an order
+#             # make sure to store the CheckoutRequestID to identify the tranaction in 
+#             # your CallBackURL endpoint.
+
+#             # return a respone to your user
+#             return {
+#                 "data": json.loads(response.text)
+#             },200
+
+#         except:
+#             # catch error and return respones
+
+#             return {
+#                 "success":False,
+#                 "message":"Sorry something went wrong please try again."
+#             },400
+
+
+# # stk push path [POST request to {baseURL}/stkpush]
+# api.add_resource(MakeSTKPush,"/stkpush")
+if __name__ == '__main__':
+    print("run")
+    app.run(debug = True)
+
+# url = "/stkpush"
+# response = requests.get(url=url, auth=HTTPBasicAuth("254791280942", "50"))
+# print(response.text)
