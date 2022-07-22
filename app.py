@@ -20,14 +20,14 @@ app = Flask(__name__)
 # app.secret_key= 'treyulwito'
 
 # db connection details
-app.config["MYSQL_HOST"] = "localhost"
-app.config["MYSQL_USER"] = "root"
-app.config["MYSQL_PASSWORD"] = "Treyul@18"
-app.config["MYSQL_DB"] = "water_billing"
-# app.config["MYSQL_HOST"] = "us-cdbr-east-05.cleardb.net"
-# app.config["MYSQL_USER"] = "bef134615a5bbe"
-# app.config["MYSQL_PASSWORD"] = "70b6c7f2"
-# app.config["MYSQL_DB"] = "heroku_ba6afcca4de000d"
+# app.config["MYSQL_HOST"] = "localhost"
+# app.config["MYSQL_USER"] = "root"
+# app.config["MYSQL_PASSWORD"] = "Treyul@18"
+# app.config["MYSQL_DB"] = "water_billing"
+app.config["MYSQL_HOST"] = "us-cdbr-east-05.cleardb.net"
+app.config["MYSQL_USER"] = "bef134615a5bbe"
+app.config["MYSQL_PASSWORD"] = "70b6c7f2"
+app.config["MYSQL_DB"] = "heroku_ba6afcca4de000d"
 mysql = MySQL(app)
 
 # configure the session 
