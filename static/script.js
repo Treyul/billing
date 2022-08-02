@@ -1,10 +1,5 @@
 "use strict";
 /////////////////////////////////
-////functions
-const Decimal = (params) => {
-  return +params;
-};
-/////////////////////////////////
 ////html elements from index
 
 const loginbtn = document.getElementById("lgn");
@@ -25,10 +20,13 @@ const login = async () => {
       }
       response.json().then(function (data) {
         //get response from server
+        console.log(data);
         if (data["message"] == "Null") {
           const error = document.getElementById("error");
           const user = document.getElementById("user");
           const pass = document.getElementById("pass");
+          loginbtn.setAttribute("disabled", false);
+          loginbtn.nextSibling.remove();
           error.classList.remove("hidden");
           user.value = "";
           pass.value = "";
@@ -36,17 +34,21 @@ const login = async () => {
           pass.blur();
 
           console.log("user does not exist");
-        } else if (data["message"] == "success") {
-          console.log(data["previousReading"]);
+        } else if (data["rights"] == "user") {
+          console.log(data["previous_reading"]);
           console.log("herer");
-          sessionStorage.setItem("previous", `${data["previousreading"]}`);
-          sessionStorage.setItem("current", `${data["currentreading"]}`);
+          sessionStorage.setItem("data", JSON.stringify(data));
+          sessionStorage.setItem("previous", `${data["previous_reading"]}`);
+          sessionStorage.setItem("current", `${data["current_reading"]}`);
           sessionStorage.setItem("payment1", `${data["payment1"]}`);
           sessionStorage.setItem("payment2", `${data["pay"]}`);
           sessionStorage.setItem("balance", `${data["balance"]}`);
           window.location.href = "/";
           // BillContainer.insertAdjacentHTML("afterbegin", BillHtml);
           console.log("passed redirect");
+        } else if (data["rights"] == "admin") {
+          sessionStorage.setItem("statistics", JSON.stringify(data));
+          window.location.href = "/adm";
         }
       });
       //TODO get billing data about the user(readings, payments)
@@ -65,5 +67,6 @@ loginbtn.addEventListener("click", function (e) {
     "afterend",
     `<i class="fa-solid fa-spinner fa-pulse fa-lg"></i>`
   );
+  loginbtn.setAttribute("disabled", true);
   login();
 });

@@ -50,7 +50,9 @@ const curreading = sessionStorage.getItem("current");
 const payments = sessionStorage.getItem("payment1");
 let currpay = sessionStorage.getItem("payment2");
 const bal = sessionStorage.getItem("balance");
-console.log(bal, +bal);
+const batd = sessionStorage.getItem("data");
+var rretrieve = JSON.parse(batd);
+console.log(rretrieve);
 const consumed = curreading - prevreading;
 const MnthBill = consumed * 130 + 50;
 

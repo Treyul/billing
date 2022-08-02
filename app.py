@@ -69,9 +69,6 @@ def login():
     db = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     if request.method == 'POST':
 
-        # TODO status connected or disconnected
-        # db.execute("SELECT account,priviledges FROM  ")
-        # use count and sum to fetch data
         # for payments sort data into 
         '''
         1)user who have paid more than 50%
@@ -115,7 +112,7 @@ def login():
 
             # if priviledge is user
             if user_priviledge =="user":
-                 
+                response_message = {"message":"success","rights":"user"}
                 #  get status of connection
                 db.execute("SELECT status FROM user WHERE account_number = %s",details)
                 user_status = db.fetchone()["status"]
@@ -130,15 +127,23 @@ def login():
 
             # if priviledge is admin
             elif user_priviledge == "admin":
-                
+                response_message = {"message":"success","rights":"admin"}
                 # fetch current and previous readings and users
-                db.execute(f"select sum(`5-{PREVIOUS_MONTH}`),sum(`5-{CURRENT_MONTH}`),count(`5-{CURRENT_MONTH}`),count(`5-{PREVIOUS_MONTH}`) from readings;")
+                db.execute(f"select sum(`5-{CURRENT_MONTH}`),sum(`5-{PREVIOUS_MONTH}`),sum(`5-{MONTHS[month_data-3]}-{year}`),count(`5-{CURRENT_MONTH}`),count(`5-{PREVIOUS_MONTH}`) from readings;")
                 DATA = list(db.fetchall())
 
-                current_total = DATA[0][f"sum(`5-{CURRENT_MONTH}`)"]
-                previous_total =DATA[0][f"sum(`5-{PREVIOUS_MONTH}`)"]
-                current_users=DATA[0][f"count(`5-{CURRENT_MONTH}`)"]
-                previous_users = DATA[0][f"count(`5-{PREVIOUS_MONTH}`)"]
+                user_revenue = []
+                for prev in DATA:
+                    for info in prev.values():
+                        user_revenue.append(info)
+
+                # current_total = DATA[0][f"sum(`5-{CURRENT_MONTH}`)"]
+                # previous_total =DATA[0][f"sum(`5-{PREVIOUS_MONTH}`)"]
+                # current_users=DATA[0][f"count(`5-{CURRENT_MONTH}`)"]
+                # previous_users = DATA[0][f"count(`5-{PREVIOUS_MONTH}`)"]
+                
+                # user_revenue = [current_total,previous_total,current_users,previous_users]
+                response_message["revenue"] = user_revenue
 
                 # fetch summation of payments for the current and previous month
                 payments_sum = []
@@ -146,19 +151,21 @@ def login():
                     db.execute(f"SELECT `{MONTHS[month_data-1-i]}-{year}` FROM payments ")
                     payment = db.fetchall()
                     payments_sum.append(function.paymentsummation(list(payment)))
-
+                
+                response_message["payments"] = payments_sum
 
                 # TODO get amount of debt paid
 
-                #  ******* fetch user payment stats *******
                 """
-                *****Stats are for the current and previous month
+
+                   ******* fetch user payment stats *******
+                *****  Stats are for the current and previous month  *****
                 user stats arranged in fully paid, >50% ,<50%, no attempt
+                debt data arranged in >10000 , >5000 , no attempt
+
                 """
+                debt_data =[[[],[],[]],[[],[],[]]]
                 user_stats = [[0,0,0,0],[0,0,0,0]]
-                bill_5 = []
-                bill_10 = []
-                bill_attempt =[]
                 # fetch users account numbers 
                 db.execute("SELECT account_number FROM user WHERE priviledges = 'user';")
                 user_accounts = list(db.fetchall())
@@ -169,10 +176,11 @@ def login():
                     # get account number of user
                     for acc_no in element.values():
                         details = (acc_no,acc_no,acc_no)
-                        
+
                         # get consumption,balance,payment
                         for i in range(2):
                             user_data = []
+                            print(details)
                             db.execute(f"SELECT sum(`5-{MONTHS[month_data-1-i]}-{year}` - `5-{MONTHS[month_data-2-i]}-{year}`)*130+50,balance.`{MONTHS[month_data-1-i]}-{year}`,payments.`{MONTHS[month_data-1-i]}-{year}` FROM readings join balance,payments where balance.accounts = %s and account = %s and payments.accounts = %s;",details)
                             data = list(db.fetchall())
                             for userdt in data:
@@ -186,11 +194,46 @@ def login():
                             elif user_data[2] == None:
                                 user_data[2] = 0
 
-                            # update user stats
+                            # update user consumption data
                             consumed = user_data[0]
                             balance = user_data[1]
                             paid = user_data[2]
                             print(consumed,balance,paid)
+
+                            #curate list of defaulter and large debtors
+                            debt = consumed+balance-paid
+                            print(f"debt is {debt}")
+                            if debt > 0: 
+                                print(debt)
+                                # get user data
+                                user_debtor_data = []
+                                detail = (acc_no,)
+                                db.execute("SELECT name,account_number,phone_number FROM user WHERE account_number = %s;",detail)
+                                user_info = list(db.fetchall())
+                                for elements in  user_info:
+                                    for info in elements.values():
+                                       user_debtor_data.append(info)
+
+                                # more than 5000 
+                                if debt >= 50 and debt < 100:
+                                    # get user data
+                                    print("runs")
+                                    user_debtor_data.append(debt)
+                                    debt_data[i][1].append(user_debtor_data)
+
+                                # more than 10000 debt
+                                elif debt > 100:
+                                    # get user data
+                                    user_debtor_data.append(debt)
+                                    debt_data[i][0].append(user_debtor_data)
+                                
+                                # no attempt 
+                                elif paid < 0:
+                                    user_debtor_data.append(debt)
+                                    debt_data[i][2].append(user_debtor_data)
+                                # debts and no payment made
+
+                                
 
                             # if user fully paid bill
                             if consumed+balance-paid <= 0:
@@ -214,7 +257,11 @@ def login():
                                 elif percentage > 50:
                                     user_stats[i][2] = user_stats[i][2] + 1
 
-                print(user_stats,current_total,previous_total)
+                print(user_stats)
+                print(debt_data[0])
+                print(debt_data[1])
+                response_message["debt_data"] = debt_data
+                response_message["user_stats"] = user_stats
 
                 """
                 fetch current bill
@@ -223,18 +270,21 @@ def login():
                 return in array format
                 fetch amount paid
                 """
-                return redirect("/adm")
-
-            # fetch readings
-            db.execute(f"SELECT `5-{CURRENT_MONTH}`,`5-{PREVIOUS_MONTH}` FROM readings WHERE  account = %s;",details)
+                return make_response(jsonify(response_message),200)
+ 
+            # fetch readings 
+            # db.execute(f"SELECT `5-{CURRENT_MONTH}` FROM readings WHERE  account = %s;",details)
+            # read = db.fetchone()
+            db.execute(f"SELECT `5-{CURRENT_MONTH}`, `5-{PREVIOUS_MONTH}` FROM readings WHERE  account = %s;",details)
             readings = list(db.fetchall())
-            # enable dynamic fetching of data
 
-            currentReading = readings[0][f"5-{CURRENT_MONTH}"]
-            previousReading = readings[0][f"5-{PREVIOUS_MONTH}"]
+            # currentReading = readings[0][f"5-{CURRENT_MONTH}"]
+            # previousReading = readings[0][f"5-{PREVIOUS_MONTH}"]
+            response_message["current_reading"] =readings[0][f"5-{CURRENT_MONTH}"]
+            response_message["previous_reading"] = readings[0][f"5-{PREVIOUS_MONTH}"]
 
             # add payments to the array
-            last_payments = []
+            last_payments = [] 
             # TODO catch error if column does not exist
             try:
                 minus = 1
@@ -263,6 +313,7 @@ def login():
               
             
             print(last_payments)
+            response_message["pay"] = last_payments
                 
             # fetch amount paid in the month upto current  date
             db.execute(f"SELECT `{CURRENT_MONTH}` FROM payments WHERE `{CURRENT_MONTH}` IS NOT NULL AND accounts = %s",details)
@@ -271,28 +322,37 @@ def login():
                 paymentOne = payments[0][f"{CURRENT_MONTH}"]
             else:
                 paymentOne = 0
+            response_message["payment1"] = paymentOne
              
             # fetch balance 
             db.execute(f"SELECT `{PREVIOUS_MONTH}` FROM balance WHERE accounts = %s", details)
             balance = db.fetchone()
-            bal = balance[f"{PREVIOUS_MONTH}"]
-            print(bal)
+            # bal = balance[f"{PREVIOUS_MONTH}"]
+            # print(bal)
+            response_message["balance"] = balance[f"{PREVIOUS_MONTH}"]
 
-            # return response
-            return make_response(jsonify({"message":"success","previousreading":f"{previousReading}","currentreading":f"{currentReading}","balance":f"{bal}","payment1":f"{paymentOne}","pay":f"{last_payments}"}),200)
+            print(response_message)
+
+            # return response 
+            return make_response(jsonify(response_message),200)
+            # return make_response(jsonify({"message":"success","previousreading":f"{previousReading}","currentreading":f"{currentReading}","balance":f"{bal}","payment1":f"{paymentOne}","pay":f"{last_payments}"}),200)
 
     return  render_template('login.html')
 
 
+# global variables
+crt_phone = ""
+crt_account = ""
+crt_name = ""
 
-phone = 0 
-account = ""
-# TODO before redirect delete user from users list
 @app.route('/signin',methods=["POST","GET"])
 def signin():
+
+    # create mysql cursor
     db = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    # TODO  check credentials validity and intercept mysql errors
     if request.method == 'POST':
+
+        # get client inputs
         req = request.get_json()
         username = req["0"]
         password = req["1"]
@@ -300,6 +360,8 @@ def signin():
         email = req["3"]
         print(req)
         msg = ''
+
+        # validate user inputs
         # TODO create user with the credentials provided if first batch checks out
         # TODO if username already exists
         # TODO verify person details by use of sending short code to number or email provided     
@@ -311,11 +373,12 @@ def signin():
             # TODO check if credibility of details
             if password == cpassword:
                 password = sha512(password.encode()).hexdigest()
-            details = (username,password,phone,account,email)
+            details = (username,password,crt_phone,crt_account,email)
             db.execute("INSERT INTO loggins(username,password,phone_number,account,email) VALUES(%s,%s,%s,%s,%s)",details)
             
             # delete row from user table
-            # db.execute("DELETE FROM user  WHERE name = %s and account_number = %s and phone_number = %s",(det))
+            det = (crt_name,crt_account,crt_phone)
+            db.execute("DELETE FROM user  WHERE name = %s and account_number = %s and phone_number = %s",(det))
             # check db if username exists
             db.execute("SELECT * FROM user")
             
@@ -328,7 +391,7 @@ def signin():
             # elif not re.match(r'[a-zA-Z0-9]+',username):
             #     msg += "Username should not contain symbols"
             # elif not re.match(r'[^@]+@[^@]+\.[^@]+',email):
-            #     msg += "invalid email address" 
+            #     msg += "invalid email address"  
             # if password != cpassword:
             #     msg += "passwords do not match"
 
@@ -337,20 +400,32 @@ def signin():
 
 @app.route("/trial",methods=["POST","GET"])
 def trial():
-    # TODO check first batch of bill credentials 
-    global phone
-    global account 
-    req = request.get_json()
+
+    # get global vars to set for signin
+    global crt_phone
+    global crt_account 
+    global crt_name
+
+    # create an sql cursor
     db = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    names = req["0"] + " " + req["1"]
-    phone = req["2"]
-    account = req["3"].upper()
-    names.lower()
-    det = (names,account,phone)
+    
+    # get user credentials from user
+    req = request.get_json()
+
+    # map credentials to variables to validate
+    crt_name = req["0"] + " " + req["1"]
+    crt_phone = req["2"]
+    crt_account = req["3"].upper()
+    crt_name.lower()
+    det = (crt_name,crt_account,crt_phone)
+
+    # match credentials with those in database
     db.execute("SELECT * FROM user WHERE name = %s and account_number = %s and phone_number = %s",(det))
     user = db.fetchone()
+
     print(req)
-    print(names.lower(),phone, account.upper())
+    print(crt_name.lower(),crt_phone, crt_account.upper())
+    
     if not user:
         return make_response(jsonify({"message":"error"}),200)
     if user:

@@ -36,8 +36,24 @@
       <p class="error hidden" id="error1"></p>
       <input type="text" t name="fname" placeholder="First name" required />
       <input type="text" name="lname" placeholder="Second name" required />
-      <input type="tel" name="phone" placeholder="Phone number" required />
-      <input type="text" name="account" placeholder="Account no" required />
+      <input
+        type="tel"
+        maxlength="12"
+        minlength="10"
+        name="phone"
+        id="phone"
+        placeholder="Phone number"
+        required
+      />
+      <input
+        type="text"
+        minlength="7"
+        maxlength="7"
+        id="account"
+        name="account"
+        placeholder="Account no"
+        required
+      />
       <div>
         <input class="send" id="send1" type="submit" value="Verify details" />
       </div>
@@ -118,6 +134,8 @@
       const error2 = document.getElementById("error1");
       const submitbtn2 = document.getElementById("send2");
       const submitbtn1 = document.getElementById("send1");
+      const phone = document.getElementById("phone");
+      const account = document.getElementById("account");
       /////////////////////////////////////////////////////
       //define functions to be used
       //check value for inputs if have unnecessary symbols prevent SQL injection
@@ -140,6 +158,14 @@
         //get data from form once submitted
         const formdata = new FormData(form1);
         const values = [...formdata.entries()];
+        erro2.classList.add("hidden");
+        if (phone.length < 13 && phone.length > 9) {
+          error2.innerHTML = "Phone number is invalid";
+          error2.classList.remove("hidden");
+        } else if (account.length != 7) {
+          error2.innerHTML = "Please enter valid account number";
+          error2.classList.remove("hidden");
+        }
         submitbtn1.insertAdjacentHTML(
           "afterend",
           `<i class="fa-solid fa-spinner fa-pulse fa-lg"></i>`
@@ -152,6 +178,7 @@
       //TODO fetch api for config of verification of details
       submitbtn2.addEventListener("click", function (e) {
         e.preventDefault();
+        //validate user inputs
         try {
           let response = fetch("/signin", {
             method: "POST",
@@ -238,6 +265,14 @@
       });
       pass1.addEventListener("keyup", function () {
         value = pass1.value;
+        /*
+         *password length > 8
+         *password
+         */
+        if (value.length < 8) {
+          error.innerHTML = "password should have 8 characters";
+          error.classList.remove("hidden");
+        }
         val2 = pass2.value;
         if (value != val2) {
           pass2.classList.add("pass2");
