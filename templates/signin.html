@@ -158,7 +158,7 @@
         //get data from form once submitted
         const formdata = new FormData(form1);
         const values = [...formdata.entries()];
-        erro2.classList.add("hidden");
+        error2.classList.add("hidden");
         if (phone.length < 13 && phone.length > 9) {
           error2.innerHTML = "Phone number is invalid";
           error2.classList.remove("hidden");

@@ -376,9 +376,10 @@ def signin():
             details = (username,password,crt_phone,crt_account,email)
             db.execute("INSERT INTO loggins(username,password,phone_number,account,email) VALUES(%s,%s,%s,%s,%s)",details)
             
-            # delete row from user table
+            # update row from user table
             det = (crt_name,crt_account,crt_phone)
-            db.execute("DELETE FROM user  WHERE name = %s and account_number = %s and phone_number = %s",(det))
+            db.execute("UPDATE user SET status = 'connected'  WHERE name = %s and account_number = %s and phone_number = %s",(det))
+            # UPDATE `water_billing`.`user` SET `status` = 'disconnected' WHERE (`account_number` = 'RA-02LW');
             # check db if username exists
             db.execute("SELECT * FROM user")
             
@@ -414,21 +415,23 @@ def trial():
 
     # map credentials to variables to validate
     crt_name = req["0"] + " " + req["1"]
-    crt_phone = req["2"]
+    phone = req["2"]
+    crt_phone = f"254{phone[1:10]}"
     crt_account = req["3"].upper()
     crt_name.lower()
     det = (crt_name,crt_account,crt_phone)
 
     # match credentials with those in database
-    db.execute("SELECT * FROM user WHERE name = %s and account_number = %s and phone_number = %s",(det))
+    db.execute("SELECT status FROM user WHERE name = %s and account_number = %s and phone_number = %s",(det))
     user = db.fetchone()
+    connected = user["status"]
 
-    print(req)
+    print(connected)
     print(crt_name.lower(),crt_phone, crt_account.upper())
     
-    if not user:
+    if connected == "connected":
         return make_response(jsonify({"message":"error"}),200)
-    if user:
+    elif connected == "disconnected":
         return make_response(jsonify({"message":"success"}),200)
     res = make_response(jsonify({"message":"OK"}),200)
     return res

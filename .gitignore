@@ -3,3 +3,6 @@
 
 # ignore all files in any dir named temp
 temp/
+flask_session/
+__pycache__
+.vscode
