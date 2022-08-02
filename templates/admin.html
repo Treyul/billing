@@ -1,0 +1,32 @@
+{% extends "layout.html" %}
+
+<!-- insert script  -->
+{% block script%}
+<script
+  defer
+  src="https://cdn.anychart.com/releases/8.11.0/js/anychart-base.min.js"
+  type="text/javascript"
+></script>
+<script defer src="/static/admscript.js"></script>
+{% endblock %}
+
+<!-- html for admin viewing -->
+{% block body %}
+<!-- show monthly usage of water -->
+<div id="usagegraph"></div>
+<!-- show graphical rep of quaterly usage of data -->
+<div id="quarterlyusage"></div>
+<!-- show percentages of how people have paid fully,half,no attempt -->
+<div id="piepayments"></div>
+<!--table showing members with arrears more than 5000  -->
+<div id="arrears"></div>
+<!-- show pie of arrears and paid for current and previous(graph or pie)-->
+<div id="percentages"></div>
+<!-- TODO add table to show list of users who have defaulted payments and paid less than 50% -->
+<!-- With each visual rep give a brief description of the visual rep -->
+<div id="currev" style="width: 500px; height: 500px"></div>
+<div id="prerev" style="width: 500px; height: 500px"></div>
+<div id="revenuevar" style="width: 500px; height: 500px"></div>
+<div id="paymnetvariation" style="width: 500px; height: 500px"></div>
+<div id="monthlyvariation" style="width: 500px; height: 500px"></div>
+{% endblock %}

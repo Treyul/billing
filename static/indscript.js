@@ -17,6 +17,7 @@ const months = [
 const date = new Date();
 const year = date.getFullYear();
 const month = date.getMonth();
+const day = date.getDate();
 const monthNumber = month + 1;
 let gridRows = "";
 
@@ -46,30 +47,47 @@ const SearchTemplate = `
 //get session storages necessary to render index page
 const prevreading = sessionStorage.getItem("previous");
 const curreading = sessionStorage.getItem("current");
-const payments = sessionStorage.getItem("payment1").split(",");
+const payments = sessionStorage.getItem("payment1");
+let currpay = sessionStorage.getItem("payment2");
+const bal = sessionStorage.getItem("balance");
+console.log(bal, +bal);
 const consumed = curreading - prevreading;
+const MnthBill = consumed * 130 + 50;
 
+let paymenthtml = `<div class="allrow heading">Payments</div>`;
+console.log(currpay);
+currpay = currpay.split("'").filter((ac) => ac.length > 1);
+if (currpay != "NULL") {
+  currpay.forEach((el) => {
+    if (el.length > 2) {
+      const desc = el.split(",");
+      paymenthtml += `
+    <div class="allrow">${desc[2].slice(0, 10)}
+    <p id="middle">${desc[1]}</p>
+    <p>${desc[0]}</p></div>`;
+    }
+  });
+}
+console.log(currpay, typeof currpay);
 //insert templates into respective containers
-PaymentContainer.insertAdjacentHTML(
-  "afterbegin",
-  `<div class="allrow heading">Payments</div>
-  <div class="allrow">${payments[2].slice(0, 10)}
-  <p id="middle">${payments[1]}</p>
-  <p>${payments[0]}</p></div>`
-);
+PaymentContainer.insertAdjacentHTML("afterbegin", paymenthtml);
 
 BillContainer.insertAdjacentHTML(
   "afterbegin",
-  ` <div class="allrow heading">As of 5th of June 2021</div>
+  ` <div class="allrow heading">As of ${day} of June 2021</div>
       <div class="allrow">Current Reading <p class="value">${curreading}</p></div>
       <div class="allrow">Previous meter Reading<p class="value">${prevreading}</p></div>
       <div class="allrow">Consumed water units<p class="value">${consumed}</p></div>
-      <div class="allrow">Current bill <p class="value">${
-        consumed * 130 + 50
+      <div class="allrow">Current bill <p class="value">${MnthBill}</p></div>
+      <div class="allrow">  Balance carried forward<p class="value">${+bal}</p></div>
+      <div class="allrow">Total bill <p class="value">${
+        MnthBill + +bal
       }</p></div>
-      <div class="allrow">  Balance carried forward<p class="value">0</p></div>
-      <div class="allrow">Total bill <p class="value">${1800}</p>
-      </div>`
+      <div class="allrow">Paid<p class="value">${payments}</p></div>
+      <div class="allrow">Balance<p class="value">${
+        MnthBill + +bal - payments
+      }</p></div>
+`
 );
 
 ////////////////////////////////////

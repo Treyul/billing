@@ -8,25 +8,28 @@
   id="viewmenu"
 ">Menu
 </div>
-  <div class="hidden" id="menu"><p><span id="menuclose" style="cursor:pointer; float: right; padding-right:3.5rem;width:2rem;" title="Close">&times;</span></p>
+  <div class="hidden" id="menu"><p style="display: inline;"><span id="menuclose" style="cursor:pointer; float: right;font-size: xxx-large;" title="Close">&times;</span></p>
   <li>
-    <ul class="menubtn search">Account
-      <p style="
-    margin: 0.5rem 0px;
-">Outstanding bill</p>
-    <form action="/stkpush" method="post">
-    <input type="text" name="amount" placeholder="Amount" style="
-    border: none;
-    border-bottom: 1.5px solid;
-">
-<div class="center"><input id="pay" type="submit" value="pay bill" style="
-    margin-top: 5px;
-    border-radius: 15px;
-    width: 45%;
-    border: 1.5px green;
-    background: #139d13;
-"></div>
-    </form>
+    <ul class="menubtn search">
+      <details><summary>Account</summary>
+        <p style="
+      margin: 0.5rem 0px;
+  ">Outstanding bill</p>
+      <form action="/stkpush" method="post">
+      <input type="text" name="amount" placeholder="Amount" style="
+      border: none;
+      border-bottom: 1.5px solid;
+  ">
+  <div class="center"><input id="pay" type="submit" value="pay bill" style="
+      margin-top: 5px;
+      border-radius: 15px;
+      width: 45%;
+      border: 1.5px green;
+      background: #139d13;
+  "></div>
+  
+      </form>
+      </details>
     </ul>
     <ul id="first" class="menubtn search">Search Bills</ul>
     <ul id="second" class="menubtn search">Search Payments</ul>
@@ -44,7 +47,7 @@
     </div>
 
     <!-- Bill container  -->
-    <div class="bill" style="grid-column: 1/2; grid-row: 3 / span 9"></div>
+    <div class="bill" style="grid-column: 1/2; grid-row: 3 / span 11"></div>
  
     <!-- payments container max three payments -->
     <div class="payments"></div>

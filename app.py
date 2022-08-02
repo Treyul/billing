@@ -12,6 +12,7 @@ import requests
 import base64
 import json
 import re
+import function
 import os
 
 # TODO implement mpesa api and twilio api
@@ -20,17 +21,17 @@ app = Flask(__name__)
 # app.secret_key= 'treyulwito'
 
 # db connection details
-# app.config["MYSQL_HOST"] = "localhost"
-# app.config["MYSQL_USER"] = "root"
-# app.config["MYSQL_PASSWORD"] = "Treyul@18"
-# app.config["MYSQL_DB"] = "water_billing"
-app.config["MYSQL_HOST"] = "us-cdbr-east-05.cleardb.net"
-app.config["MYSQL_USER"] = "bef134615a5bbe"
-app.config["MYSQL_PASSWORD"] = "70b6c7f2"
-app.config["MYSQL_DB"] = "heroku_ba6afcca4de000d"
+app.config["MYSQL_HOST"] = "localhost"
+app.config["MYSQL_USER"] = "root"
+app.config["MYSQL_PASSWORD"] = "Treyul@18"
+app.config["MYSQL_DB"] = "water_billing"
+# app.config["MYSQL_HOST"] = "us-cdbr-east-05.cleardb.net"
+# app.config["MYSQL_USER"] = "bef134615a5bbe"
+# app.config["MYSQL_PASSWORD"] = "70b6c7f2"
+# app.config["MYSQL_DB"] = "heroku_ba6afcca4de000d"
 mysql = MySQL(app)
 
-# configure the session 
+# configure the session    
 app.config['SESSION_PERMANENT']= False
 app.config['SESSION_TYPE'] = 'filesystem'
 Session(app)
@@ -67,38 +68,220 @@ def login():
     global accounts
     db = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     if request.method == 'POST':
-        print(request.method)
+
+        # TODO status connected or disconnected
+        # db.execute("SELECT account,priviledges FROM  ")
+        # use count and sum to fetch data
+        # for payments sort data into 
+        '''
+        1)user who have paid more than 50%
+        2)user who have fully paid their bill 
+        3)users who have paid less than 50% 
+        4)users who have made no attempt of payments -- get list
+        5)users with arrears more than 5000 -- get list
+        6)users with arrears more than 10000 -- get list
+
+        *****lists
+        list includes account,name phone number, amount 
+        '''
+        # get loggin data from client
         login_data = request.get_json()
-        print(type(login_data))
-        print(login_data["0"])
         username = login_data["0"]
-        print(login_data["1"],"first ryun")
         password = sha512(login_data["1"].encode()).hexdigest()
         details = (username,password)
+
+        # validate loggin credentials
         db.execute("SELECT account FROM loggins WHERE username = %s AND password = %s;",details)
         acc = db.fetchone()
-        print(acc)
         if not acc:
             return make_response(jsonify({"message":"Null"}),200)
         else:
+            # create session variables for logging in
             year = datetime.now().strftime("%Y")
             accounts = acc["account"] 
             session["logged_in"] = True
             session["name"] = username
             details = (acc["account"],)
-            db.execute(f"SELECT `5-{MONTHS[month_data-2]}-{year}`,`5-{MONTHS[month_data-3]}-{year}` FROM readings WHERE  account = %s;",details)
+
+            # create variable to be used
+            CURRENT_MONTH = f"{MONTHS[month_data-1]}-{year}"
+            PREVIOUS_MONTH = f"{MONTHS[month_data-2]}-{year}"
+
+
+            # GET priviledge of user
+            db.execute("SELECT priviledges FROM user WHERE account_number = %s",details)
+            user_priviledge = db.fetchone()["priviledges"]
+            print(user_priviledge)
+
+            # if priviledge is user
+            if user_priviledge =="user":
+                 
+                #  get status of connection
+                db.execute("SELECT status FROM user WHERE account_number = %s",details)
+                user_status = db.fetchone()["status"]
+                print(user_status)
+
+                # if user status is connected
+                if user_status == "connected":
+                    print("conn")
+                # if user status is disconnected
+                elif user_status == "disconected":
+                    print("disco")
+
+            # if priviledge is admin
+            elif user_priviledge == "admin":
+                
+                # fetch current and previous readings and users
+                db.execute(f"select sum(`5-{PREVIOUS_MONTH}`),sum(`5-{CURRENT_MONTH}`),count(`5-{CURRENT_MONTH}`),count(`5-{PREVIOUS_MONTH}`) from readings;")
+                DATA = list(db.fetchall())
+
+                current_total = DATA[0][f"sum(`5-{CURRENT_MONTH}`)"]
+                previous_total =DATA[0][f"sum(`5-{PREVIOUS_MONTH}`)"]
+                current_users=DATA[0][f"count(`5-{CURRENT_MONTH}`)"]
+                previous_users = DATA[0][f"count(`5-{PREVIOUS_MONTH}`)"]
+
+                # fetch summation of payments for the current and previous month
+                payments_sum = []
+                for i in range(2):
+                    db.execute(f"SELECT `{MONTHS[month_data-1-i]}-{year}` FROM payments ")
+                    payment = db.fetchall()
+                    payments_sum.append(function.paymentsummation(list(payment)))
+
+
+                # TODO get amount of debt paid
+
+                #  ******* fetch user payment stats *******
+                """
+                *****Stats are for the current and previous month
+                user stats arranged in fully paid, >50% ,<50%, no attempt
+                """
+                user_stats = [[0,0,0,0],[0,0,0,0]]
+                bill_5 = []
+                bill_10 = []
+                bill_attempt =[]
+                # fetch users account numbers 
+                db.execute("SELECT account_number FROM user WHERE priviledges = 'user';")
+                user_accounts = list(db.fetchall())
+
+                # get data for each user
+                for element in user_accounts:
+
+                    # get account number of user
+                    for acc_no in element.values():
+                        details = (acc_no,acc_no,acc_no)
+                        
+                        # get consumption,balance,payment
+                        for i in range(2):
+                            user_data = []
+                            db.execute(f"SELECT sum(`5-{MONTHS[month_data-1-i]}-{year}` - `5-{MONTHS[month_data-2-i]}-{year}`)*130+50,balance.`{MONTHS[month_data-1-i]}-{year}`,payments.`{MONTHS[month_data-1-i]}-{year}` FROM readings join balance,payments where balance.accounts = %s and account = %s and payments.accounts = %s;",details)
+                            data = list(db.fetchall())
+                            for userdt in data:
+                                for value in userdt.values():
+                                    user_data.append(value)
+                            
+                            # get amount of money paid in the month
+                            print(user_data)
+                            if user_data[2] != None:
+                                user_data[2] = function.amount(user_data[2])
+                            elif user_data[2] == None:
+                                user_data[2] = 0
+
+                            # update user stats
+                            consumed = user_data[0]
+                            balance = user_data[1]
+                            paid = user_data[2]
+                            print(consumed,balance,paid)
+
+                            # if user fully paid bill
+                            if consumed+balance-paid <= 0:
+                                user_stats[i][0] = user_stats[i][0] + 1
+
+                            # no attempt on payment
+                            elif consumed+balance > 0 and paid == 0:
+                                user_stats[i][3] = user_stats[i][3] + 1
+
+                            else:
+                                # get percentage of bill paid
+                                arrears = balance - paid + consumed
+                                percentage = (arrears/consumed)*100
+                                print(percentage)
+
+                                # percentage is > 50%
+                                if percentage < 50:
+                                    user_stats[i][1] = user_stats[i][1] + 1
+
+                                # percentage is < 50%
+                                elif percentage > 50:
+                                    user_stats[i][2] = user_stats[i][2] + 1
+
+                print(user_stats,current_total,previous_total)
+
+                """
+                fetch current bill
+                1)get list of users
+                2)fetch balance,
+                return in array format
+                fetch amount paid
+                """
+                return redirect("/adm")
+
+            # fetch readings
+            db.execute(f"SELECT `5-{CURRENT_MONTH}`,`5-{PREVIOUS_MONTH}` FROM readings WHERE  account = %s;",details)
             readings = list(db.fetchall())
-            currentReading = readings[0]["5-June-2022"]
-            previousReading = readings[0]["5-May-2022"]
-            print(readings[0]["5-June-2022"])
-            db.execute(f"SELECT `June-2022` FROM payments WHERE `June-2022` IS NOT NULL AND accounts = %s",details)
+            # enable dynamic fetching of data
+
+            currentReading = readings[0][f"5-{CURRENT_MONTH}"]
+            previousReading = readings[0][f"5-{PREVIOUS_MONTH}"]
+
+            # add payments to the array
+            last_payments = []
+            # TODO catch error if column does not exist
+            try:
+                minus = 1
+                while len(last_payments) < 3:
+                    db.execute(f"SELECT `{MONTHS[month_data-minus]}-{year}` FROM payments WHERE `{MONTHS[month_data-minus]}-{year}` IS NOT NULL AND accounts = %s",details)
+                    payments = list(db.fetchall())
+
+                    print(f"{MONTHS[month_data-minus]}-{year}")
+                    print(minus)
+                    print(payments)
+                    print(len(payments))
+                    print(len(last_payments))
+                    if len(payments) > 0:
+                        paymentOne = payments[0][f"{MONTHS[month_data-minus]}-{year}"]
+                        print(paymentOne)
+                        for el in re.split('{|}',paymentOne):
+                            if len(el) > 0:
+                                for desc in re.split(';',el):
+                                    if len(last_payments) < 3:
+                                        last_payments.append(desc)
+                                        print(f"This {last_payments}")
+                    minus = minus + 1
+            except Error:
+                last_payments.append("NULL")
+                minus = minus + 1
+              
+            
+            print(last_payments)
+                
+            # fetch amount paid in the month upto current  date
+            db.execute(f"SELECT `{CURRENT_MONTH}` FROM payments WHERE `{CURRENT_MONTH}` IS NOT NULL AND accounts = %s",details)
             payments = list(db.fetchall())
-            paymentOne = payments[0]["June-2022"]
-            # paymentTwo = payments[1]["June-2022"]
-            return make_response(jsonify({"message":"success","previousreading":f"{previousReading}","currentreading":f"{currentReading}","payment1":f"{paymentOne}"}),200)
+            if len(payments) > 0:
+                paymentOne = payments[0][f"{CURRENT_MONTH}"]
+            else:
+                paymentOne = 0
+             
+            # fetch balance 
+            db.execute(f"SELECT `{PREVIOUS_MONTH}` FROM balance WHERE accounts = %s", details)
+            balance = db.fetchone()
+            bal = balance[f"{PREVIOUS_MONTH}"]
+            print(bal)
+
+            # return response
+            return make_response(jsonify({"message":"success","previousreading":f"{previousReading}","currentreading":f"{currentReading}","balance":f"{bal}","payment1":f"{paymentOne}","pay":f"{last_payments}"}),200)
 
     return  render_template('login.html')
-
 
 
 
@@ -108,6 +291,7 @@ account = ""
 @app.route('/signin',methods=["POST","GET"])
 def signin():
     db = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    # TODO  check credentials validity and intercept mysql errors
     if request.method == 'POST':
         req = request.get_json()
         username = req["0"]
@@ -196,6 +380,7 @@ def bills():
             try:
                 db.execute(f"SELECT `5-{MONTHS[Start_month-1]}-{Start_year}` FROM readings WHERE account = %s;",details)
                 reading = db.fetchone()
+                print(reading,f"5-{MONTHS[Start_month-1]}-{Start_year}")
                 read = reading[f"5-{MONTHS[Start_month-1]}-{year}"]
                 ResponseMessage["y"+str(Start_year)].append(read)
                 print(read) 
@@ -208,6 +393,11 @@ def bills():
                     pay = payment[0][f"{MONTHS[Start_month]}-{Start_year}"]
                     ResponseMessage["payments"].append(pay)
                 Start_month=Start_month+1
+
+            except IndexError:
+                ResponseMessage["payments"].append("00")
+                Start_month = Start_month + 1
+                continue
 
             except Error as e:
                 print("Error code: ",e.args)
@@ -243,8 +433,11 @@ def payment():
                     db.execute(f"SELECT `{MONTHS[Start_month-1]}-{Start_year}` FROM payments WHERE `{MONTHS[Start_month-1]}-{Start_year}` IS NOT NULL AND accounts = %s",details)
                     payment = list(db.fetchall())
                     print(payment)
-                    pay = payment[0][f"{MONTHS[Start_month-1]}-{Start_year}"]
-                    Response_Message["payments"].append(pay)
+                    if len(payment)<1:
+                        Response_Message["payments"].append("00")
+                    else:
+                        pay = payment[0][f"{MONTHS[Start_month-1]}-{Start_year}"]
+                        Response_Message["payments"].append(pay)
                 # Response_Message.append(pay)
                     Start_month = Start_month + 1
                 except Error:
@@ -352,7 +545,6 @@ def mpesa_stk_push():
             # check response code for errors and return response
             if response.status_code > 299:
                 return{
-                    "response":request,
                     "success": False,
                     "message":"Sorry, something went wrong please try again later 1."
                 },400
@@ -472,9 +664,11 @@ def mpesa_stk_push():
 #                 "message":"Sorry something went wrong please try again."
 #             },400
 
-
 # # stk push path [POST request to {baseURL}/stkpush]
 # api.add_resource(MakeSTKPush,"/stkpush")
+@app.route("/adm")
+def adm():
+    return render_template("admin.html")
 if __name__ == '__main__':
     print("run")
     app.run(debug = True)

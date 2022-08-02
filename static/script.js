@@ -1,4 +1,4 @@
-// "use strict";
+"use strict";
 /////////////////////////////////
 ////functions
 const Decimal = (params) => {
@@ -42,6 +42,8 @@ const login = async () => {
           sessionStorage.setItem("previous", `${data["previousreading"]}`);
           sessionStorage.setItem("current", `${data["currentreading"]}`);
           sessionStorage.setItem("payment1", `${data["payment1"]}`);
+          sessionStorage.setItem("payment2", `${data["pay"]}`);
+          sessionStorage.setItem("balance", `${data["balance"]}`);
           window.location.href = "/";
           // BillContainer.insertAdjacentHTML("afterbegin", BillHtml);
           console.log("passed redirect");
