@@ -418,3 +418,21 @@ ul {
     display: none;
   }
 }
+
+/* admin page styles */
+th,
+td {
+  border: 1px solid black;
+  padding: 5px;
+  text-align: center;
+}
+table {
+  border-collapse: collapse;
+  width: 90%;
+  margin: 1rem;
+}
+#debtanalysis {
+  text-align: -webkit-center;
+}
+@media screen {
+}

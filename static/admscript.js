@@ -1,50 +1,129 @@
-// const GraphUsage = document.getElementById("usagegraph");
-// const QuarterlyData = document.getElementById("quarterlyusage");
-// const PaymentsPie = document.getElementById("quarterlyusage");
+// select html elements
+const tables = document.getElementById("debtanalysis");
 
+// functions
+const TableDelete = (element) => {
+  const count = element.childElementCount;
+  if (count < 3) {
+    element.classList.add("hidden");
+  }
+};
+
+//get json data from server
 const StatString = sessionStorage.getItem("statistics");
 const statistics = JSON.parse(StatString);
+
+// delete unnecessary Obj items
 delete statistics["message"];
 delete statistics["rights"];
+
 console.log(statistics);
 
-const user_stats = statistics["user_stats"];
+/********** show variation in debts **********/
+
+// get debt data
+const debtsArray = statistics["debt_data"];
+
+// map data into repective monthly  containers
+for (i in debtsArray) {
+  // get debts array to be mapped into tables
+  const DivContainer = tables.children[i];
+  const MonthlyDebt = debtsArray[i];
+
+  for (index in MonthlyDebt) {
+    // get data to be mapped to table
+    const UserInfo = MonthlyDebt[index];
+    const table = DivContainer.children[+index + 1];
+
+    // initailize template
+    let TableTemplate = ``;
+
+    // map data
+    for (user of UserInfo) {
+      // initialize table row
+      TableTemplate += `<tr>`;
+
+      // insert user data into table
+      for (info in user) {
+        TableTemplate += `<td>${user[info]}</td>`;
+      }
+
+      // close table row
+      TableTemplate += `<tr>`;
+    }
+    table.insertAdjacentHTML("beforeend", TableTemplate);
+  }
+}
+
+// remove empty tables
+for (element of tables.children) {
+  console.log(element);
+  for (index in element.children) {
+    console.log(index);
+    if (+index > 0 && +index < 4) {
+      const table = element.children[index];
+      console.log(table);
+      TableDelete(table);
+    }
+  }
+}
+
+/********** show variation in revenue collection and user paymnets**********/
+
+// deconstruct revenue array and monthly payments
 const [firstred, secondred, thirdread, ...usercounts] = statistics["revenue"];
 const [currpay, prevpay] = statistics["payments"];
 
+// create pie chart for the current month user payments
+// initialize data
 const currev = (firstred - secondred) * 130 + 50 * usercounts[0];
 const currentRevenue = [
   { x: "paid", value: currpay },
   { x: "Pending-payment", value: currev - currpay },
 ];
+
+// render data
 var CurrentMonthRevenue = anychart.pie(currentRevenue);
 CurrentMonthRevenue.container("currev");
 CurrentMonthRevenue.title("Current Month variation in revenue collection");
 CurrentMonthRevenue.draw();
 
+// create pie chart for the previous month and user payments
+// initialize data
 const prevrev = (secondred - thirdread) * 130 + 50 * usercounts[1];
 const PreviousRevenue = [
   { x: "paid", value: prevpay },
   { x: "Pending-payment", value: prevrev - prevpay },
 ];
+
+// render data
 var PreviousMonthRevenue = anychart.pie(PreviousRevenue);
 PreviousMonthRevenue.container("prerev");
 PreviousMonthRevenue.title("Previous Month variation in revenue collection");
 PreviousMonthRevenue.draw();
 
+// create pie chart for variation in revenue collection
+// initialize data
 const revenuevar = [
   { x: "current month", value: currev },
   { x: "previous-month", value: prevrev },
 ];
+
+// render data
 var RevenueVariation = anychart.pie(revenuevar);
 RevenueVariation.container("revenuevar");
 RevenueVariation.title("variation in revenue collected");
 RevenueVariation.draw();
 
-// show variation in how users have tended to their bill
+/********** show variation in how users have tended to their bill **********/
+
+// deconstruct user stats
+const [CurrentStats, PreviousStats] = statistics["user_stats"];
+
+// initialize data for the chart
 var data = anychart.data.set([
-  ["Current month", ...user_stats[0]],
-  ["Previous month", ...user_stats[1]],
+  ["Current month", ...CurrentStats],
+  ["Previous month", ...PreviousStats],
 ]);
 
 //   map the data
@@ -81,12 +160,13 @@ chart.barGroupsPadding(2);
 // initiate drawing the chart
 chart.draw();
 
-// show variation in water consumption
+/********** show variation in water consumption ***********/
 var MonthlyConsumption = anychart.data.set([
-  ["Current month", 9],
-  ["Previous month", 7],
+  ["Current month", firstred - secondred],
+  ["Previous month", thirdread - secondred],
 ]);
 
+// set data for the graph
 var monthlysrsdt = MonthlyConsumption.mapAs({ x: 0, value: 1 });
 var monthly = anychart.column();
 var monthlysrs = monthly.column(monthlysrsdt);

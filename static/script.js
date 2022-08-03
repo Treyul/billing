@@ -1,7 +1,6 @@
 "use strict";
 /////////////////////////////////
 ////html elements from index
-
 const loginbtn = document.getElementById("lgn");
 const form = document.getElementById("login_form");
 
@@ -25,7 +24,7 @@ const login = async () => {
           const error = document.getElementById("error");
           const user = document.getElementById("user");
           const pass = document.getElementById("pass");
-          loginbtn.setAttribute("disabled", false);
+          loginbtn.removeAttribute("disabled");
           loginbtn.nextSibling.remove();
           error.classList.remove("hidden");
           user.value = "";

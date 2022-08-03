@@ -36,6 +36,18 @@ const menu = document.getElementById("menu");
 const viewmenu = document.getElementById("viewmenu");
 const pay = document.getElementById("pay");
 
+//get session storages necessary to render index page
+const prevreading = sessionStorage.getItem("previous");
+const curreading = sessionStorage.getItem("current");
+const payments = sessionStorage.getItem("payment1");
+const bal = sessionStorage.getItem("balance");
+const batd = sessionStorage.getItem("data");
+let currpay = sessionStorage.getItem("payment2");
+const consumed = curreading - prevreading;
+const MnthBill = consumed * 130 + 50;
+var rretrieve = JSON.parse(batd);
+console.log(rretrieve);
+
 ///////////////////////////
 ////templates
 const SearchTemplate = `
@@ -44,20 +56,10 @@ const SearchTemplate = `
 <div style="text-align: center" class='empty'><b>End Month </b><br /><input type="month" class="range" id="end"/></div>
 <div class="hidden empty" id="perror"></div>`;
 
-//get session storages necessary to render index page
-const prevreading = sessionStorage.getItem("previous");
-const curreading = sessionStorage.getItem("current");
-const payments = sessionStorage.getItem("payment1");
-let currpay = sessionStorage.getItem("payment2");
-const bal = sessionStorage.getItem("balance");
-const batd = sessionStorage.getItem("data");
-var rretrieve = JSON.parse(batd);
-console.log(rretrieve);
-const consumed = curreading - prevreading;
-const MnthBill = consumed * 130 + 50;
-
 let paymenthtml = `<div class="allrow heading">Payments</div>`;
+
 console.log(currpay);
+
 currpay = currpay.split("'").filter((ac) => ac.length > 1);
 if (currpay != "NULL") {
   currpay.forEach((el) => {
@@ -70,7 +72,9 @@ if (currpay != "NULL") {
     }
   });
 }
+
 console.log(currpay, typeof currpay);
+
 //insert templates into respective containers
 PaymentContainer.insertAdjacentHTML("afterbegin", paymenthtml);
 
@@ -171,6 +175,7 @@ PaymentSearch.forEach((ac) => {
                 console.log(data["message"]);
               } else {
                 delete data["message"];
+
                 console.log(data["payments"]);
 
                 //get values from each string
@@ -267,6 +272,7 @@ BillSearch.forEach((ac) => {
             .then(function (response) {
               if (response.status !== 200) {
                 console.log("error");
+
                 return;
               }
 
@@ -276,7 +282,9 @@ BillSearch.forEach((ac) => {
                   console.log("Error");
                 } else {
                   delete data["message"];
+
                   console.log(Object.entries(data));
+
                   readings = Object.entries(data);
 
                   let BillTemplate = "";
@@ -294,6 +302,7 @@ BillSearch.forEach((ac) => {
                       }
                       while (payment.length <= Endmonth) {
                         payment.unshift(0);
+
                         console.log(payment);
                       }
                       let cfbalance = 0;
@@ -345,21 +354,27 @@ BillSearch.forEach((ac) => {
                         len++;
                         startmonth++;
                         cfbalance = balance;
+
                         console.log(startmonth);
                       }
                     }
+
                     console.log(bills);
+
                     readings.pop();
                     readings.pop();
                   }
 
                   //prepare results container to render the template
                   len > 0 ? (len = Math.ceil(len / 2)) : len;
+
                   console.log(len);
+
                   center.style.gridRow = `1/span ${11 * len}`;
                   gridRows += `repeat(${11 * len},2rem )`;
                   rows.insertAdjacentHTML("beforeend", BillTemplate);
                   rows.style.gridTemplateRows = gridRows;
+
                   console.log("Loaded");
                 }
               });

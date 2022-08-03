@@ -23,8 +23,8 @@ app = Flask(__name__)
 # db connection details
 # app.config["MYSQL_HOST"] = "localhost"
 # app.config["MYSQL_USER"] = "root"
-# app.config["MYSQL_PASSWORD"] = "Treyul@18"
-# app.config["MYSQL_DB"] = "water_billing"
+# app.config["MYSQL_PASSWORD"] = "Treyul@18" 
+# app.config["MYSQL_DB"] = "water_billing" 
 app.config["MYSQL_HOST"] = "us-cdbr-east-05.cleardb.net"
 app.config["MYSQL_USER"] = "bef134615a5bbe"
 app.config["MYSQL_PASSWORD"] = "70b6c7f2"
@@ -36,20 +36,13 @@ app.config['SESSION_PERMANENT']= False
 app.config['SESSION_TYPE'] = 'filesystem'
 Session(app)
 
-# 
-# app.config["API_ENVIRONMENT"] = "sandbox" #sandbox or live
-# app.config["APP_KEY"] = "h4P5d59ezEgGqWeZ0yKcHyJG8zARd6M5" # App_key from developers portal
-# app.config["APP_SECRET"] = "CZAcHUB9Bk9REXTg" #App_Secret from developers portal
-# mpesa_api=MpesaAPI()
-
-# api = Api(app)
-
 # get time details that is month and year
 MONTHS = ["Jan","Feb","Mar","Apr","May","June","Jul","Aug","Sept","Oct","Nov","Dec"]
 month_data = int(datetime.now().strftime("%m"))
 accounts = ""
 # set up for routing
 seconds = datetime.now().strftime("%S")
+
 while(seconds == 24):
     print("it works")
 print(seconds)
@@ -108,6 +101,7 @@ def login():
             # GET priviledge of user
             db.execute("SELECT priviledges FROM user WHERE account_number = %s",details)
             user_priviledge = db.fetchone()["priviledges"]
+
             print(user_priviledge)
 
             # if priviledge is user
@@ -116,13 +110,17 @@ def login():
                 #  get status of connection
                 db.execute("SELECT status FROM user WHERE account_number = %s",details)
                 user_status = db.fetchone()["status"]
+
                 print(user_status)
 
                 # if user status is connected
                 if user_status == "connected":
+
                     print("conn")
+
                 # if user status is disconnected
                 elif user_status == "disconected":
+                    
                     print("disco")
 
             # if priviledge is admin
@@ -180,7 +178,9 @@ def login():
                         # get consumption,balance,payment
                         for i in range(2):
                             user_data = []
-                            print(details)
+
+                            print(details) 
+
                             db.execute(f"SELECT sum(`5-{MONTHS[month_data-1-i]}-{year}` - `5-{MONTHS[month_data-2-i]}-{year}`)*130+50,balance.`{MONTHS[month_data-1-i]}-{year}`,payments.`{MONTHS[month_data-1-i]}-{year}` FROM readings join balance,payments where balance.accounts = %s and account = %s and payments.accounts = %s;",details)
                             data = list(db.fetchall())
                             for userdt in data:
@@ -188,7 +188,9 @@ def login():
                                     user_data.append(value)
                             
                             # get amount of money paid in the month
+
                             print(user_data)
+                            
                             if user_data[2] != None:
                                 user_data[2] = function.amount(user_data[2])
                             elif user_data[2] == None:
@@ -198,13 +200,18 @@ def login():
                             consumed = user_data[0]
                             balance = user_data[1]
                             paid = user_data[2]
+                            
                             print(consumed,balance,paid)
 
                             #curate list of defaulter and large debtors
                             debt = consumed+balance-paid
+                            
                             print(f"debt is {debt}")
+                            
                             if debt > 0: 
+                                
                                 print(debt)
+                                
                                 # get user data
                                 user_debtor_data = []
                                 detail = (acc_no,)
@@ -216,8 +223,10 @@ def login():
 
                                 # more than 5000 
                                 if debt >= 50 and debt < 100:
-                                    # get user data
+                                    # get user data 
+                                    
                                     print("runs")
+                                    
                                     user_debtor_data.append(debt)
                                     debt_data[i][1].append(user_debtor_data)
 
@@ -228,7 +237,7 @@ def login():
                                     debt_data[i][0].append(user_debtor_data)
                                 
                                 # no attempt 
-                                elif paid < 0:
+                                elif paid < 0: 
                                     user_debtor_data.append(debt)
                                     debt_data[i][2].append(user_debtor_data)
                                 # debts and no payment made
@@ -247,6 +256,7 @@ def login():
                                 # get percentage of bill paid
                                 arrears = balance - paid + consumed
                                 percentage = (arrears/consumed)*100
+                                
                                 print(percentage)
 
                                 # percentage is > 50%
@@ -257,9 +267,11 @@ def login():
                                 elif percentage > 50:
                                     user_stats[i][2] = user_stats[i][2] + 1
 
+                
                 print(user_stats)
                 print(debt_data[0])
                 print(debt_data[1])
+                
                 response_message["debt_data"] = debt_data
                 response_message["user_stats"] = user_stats
 
@@ -297,15 +309,20 @@ def login():
                     print(payments)
                     print(len(payments))
                     print(len(last_payments))
+                    
                     if len(payments) > 0:
                         paymentOne = payments[0][f"{MONTHS[month_data-minus]}-{year}"]
+                        
                         print(paymentOne)
+                        
                         for el in re.split('{|}',paymentOne):
                             if len(el) > 0:
                                 for desc in re.split(';',el):
                                     if len(last_payments) < 3:
                                         last_payments.append(desc)
+                         
                                         print(f"This {last_payments}")
+                    
                     minus = minus + 1
             except Error:
                 last_payments.append("NULL")
@@ -313,6 +330,7 @@ def login():
               
             
             print(last_payments)
+            
             response_message["pay"] = last_payments
                 
             # fetch amount paid in the month upto current  date
@@ -358,7 +376,9 @@ def signin():
         password = req["1"]
         cpassword = req["2"]
         email = req["3"]
+       
         print(req)
+       
         msg = ''
 
         # validate user inputs
@@ -366,7 +386,9 @@ def signin():
         # TODO if username already exists
         # TODO verify person details by use of sending short code to number or email provided     
         if not re.match(r'[a-zA-Z0-9]+',username):
+            
             print("username should not contain symbols")
+            
             return
         else:
             # TODO check if username if exists
@@ -384,7 +406,9 @@ def signin():
             db.execute("SELECT * FROM user")
             
             acc = db.fetchall()
+           
             print(acc)
+           
             mysql.connection.commit()
             db.close()
             # if acc:
@@ -458,16 +482,21 @@ def bills():
             try:
                 db.execute(f"SELECT `5-{MONTHS[Start_month-1]}-{Start_year}` FROM readings WHERE account = %s;",details)
                 reading = db.fetchone()
+                
                 print(reading,f"5-{MONTHS[Start_month-1]}-{Start_year}")
+                
                 read = reading[f"5-{MONTHS[Start_month-1]}-{year}"]
                 ResponseMessage["y"+str(Start_year)].append(read)
+                
                 print(read) 
                 readings.append(read)  
 
                 if MONTHS.index(MONTHS[End_month-1]) >= MONTHS.index(MONTHS[Start_month]):
                     db.execute(f"SELECT `{MONTHS[Start_month]}-{Start_year}` FROM payments WHERE `{MONTHS[Start_month]}-{Start_year}` IS NOT NULL AND accounts = %s",details)
                     payment = list(db.fetchall())
+                 
                     print(payment)
+                 
                     pay = payment[0][f"{MONTHS[Start_month]}-{Start_year}"]
                     ResponseMessage["payments"].append(pay)
                 Start_month=Start_month+1
@@ -478,15 +507,19 @@ def bills():
                 continue
 
             except Error as e:
+                
                 print("Error code: ",e.args)
                 print("Error message: ",e.__cause__)
                 print("Error: ",e)
+                
                 ResponseMessage["payments"].append("00")
                 Start_month = Start_month + 1
                 continue
+    
     print(ResponseMessage)
     print(req)
     print(readings)
+    
     return make_response(jsonify(ResponseMessage),200)
 
 
@@ -496,7 +529,9 @@ def payment():
     Response_Message = {"message":"success"}
     db = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     req = request.get_json()
+    
     print(req)
+    
     year = datetime.now().strftime("%Y")
     Start_year = req[0]
     Start_month = req[1]
@@ -510,7 +545,9 @@ def payment():
                 try:
                     db.execute(f"SELECT `{MONTHS[Start_month-1]}-{Start_year}` FROM payments WHERE `{MONTHS[Start_month-1]}-{Start_year}` IS NOT NULL AND accounts = %s",details)
                     payment = list(db.fetchall())
+                    
                     print(payment)
+                    
                     if len(payment)<1:
                         Response_Message["payments"].append("00")
                     else:
@@ -519,13 +556,17 @@ def payment():
                 # Response_Message.append(pay)
                     Start_month = Start_month + 1
                 except Error:
+                    
                     print(Error)
+                    
                     Start_month = Start_month + 1  
                     continue
     except Error as e:
+       
         print("Error code: ",e.args)
         print("Error message: ",e)
         print("Error: ",e)
+       
         Response_Message["message"] = "Error"
         return make_response(jsonify(Response_Message),200)
     return make_response(jsonify(Response_Message),200)
@@ -546,6 +587,44 @@ def get_mpesa_token():
 
     # return access_token from response
     return r.json()['access_token']
+
+base_url ="http://192.168.43.115/"
+@app.route("/register_urls")
+def register():
+    mpesa_endpoint = "https://sandbox.safaricom.co.ke/mpesa/c2b/v1/registerurl"
+    headers = {"Authorization": "Bearer %s" % get_mpesa_token()}
+    req_body = {
+            "ShortCode":"600383",
+            "ResponseType":"completed",
+            "ConfirmationURL":base_url + "/c2b/confirm",
+            "ValidationURL":base_url + "/c2b/validation"
+        }
+    
+    response_data = requests.post(
+     mpesa_endpoint,
+     json = req_body,
+     headers = headers   
+    )
+
+    return response_data.json()
+
+@app.route("/c2b/confirm")
+def confirm():
+
+    data = request.get_json()
+
+    file = open("confirm.json","a")
+    file.write(data)
+    file.close()
+
+@app.route("/c2b/validation")
+def validate():
+
+    data = request.get_json()
+
+    file = open("validate.json","a")
+    file.write(data)
+    file.close()
 
 
 @app.route("/stkpush",methods=["POST","GET"])
@@ -578,7 +657,9 @@ def mpesa_stk_push():
 
     # encode business_shortcode, online_passkey and current_time (yyyyMMhhmmss) to base64
     passkey  = base64.b64encode(encode_data.encode())
+   
     print("here")
+
 
         # make stk push
     try:
@@ -595,7 +676,9 @@ def mpesa_stk_push():
             # data = MakeSTKPush.parser.parse_args()
 
             # define request body
+           
             print("here2")
+           
             req = {
                 "BusinessShortCode": business_number,
                 "Password": str(passkey)[2:-1],
@@ -605,7 +688,7 @@ def mpesa_stk_push():
                 "PartyA": 254708374149,
                 "PartyB": business_number,
                 "PhoneNumber": 254708374149,
-                "CallBackURL": "http://127.0.0.1:5000/mpesaexp",
+                "CallBackURL": "https://premalitewater.herokuapp.com/callback",
                 "AccountReference": "CompanyXLTD",
                 "TransactionDesc": "Payment of X"
             }
@@ -613,11 +696,15 @@ def mpesa_stk_push():
             # print(request) 
             # make request and catch response
             response = requests.post(api_url,json=req,headers=headers)
+            
             print(response)
             print(response.text)
+            
             data = json.loads(response.text)
+            
             print("json data")
             print(data)
+            
             # print(data[CheckoutRequestID])
 
             # check response code for errors and return response
@@ -651,6 +738,25 @@ def mpesa_stk_push():
 
 
 
+@app.route('/callback',methods=["POST"])
+def callback_url():
+    #get json data set to this route
+    json_data = request.get_json()
+   
+    print("callback mpesa api")
+   
+    #get result code and probably check for transaction success or failure
+    result_code=json_data["Body"]["stkCallback"]["ResultCode"]
+   
+    print(result_code)
+   
+    message={
+        "ResultCode":0,
+        "ResultDesc":"success",
+        "ThirdPartyTransID":"h234k2h4krhk2"
+    }
+    #if result code is 0 you can proceed and save the data else if its any other number you can track the transaction
+    return jsonify(message),200
 # @app.route("/pay",methods=["POST","GET"])
 # def pay():
 #         print(f"this is the amount: {amt}")
@@ -748,7 +854,9 @@ def mpesa_stk_push():
 def adm():
     return render_template("admin.html")
 if __name__ == '__main__':
+
     print("run")
+    
     app.run(debug = True)
 
 # url = "/stkpush"
