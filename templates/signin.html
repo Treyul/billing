@@ -162,7 +162,8 @@
         if (phone.length < 13 && phone.length > 9) {
           error2.innerHTML = "Phone number is invalid";
           error2.classList.remove("hidden");
-        } else if (account.length != 7) {
+        } else if (account.value.length != 7) {
+          console.log(account.value.length);
           error2.innerHTML = "Please enter valid account number";
           error2.classList.remove("hidden");
         }
