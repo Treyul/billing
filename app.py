@@ -15,24 +15,43 @@ import re
 import function
 import os
 
+# pending approval
 # TODO implement mpesa api and twilio api
+# TODO get amount of debt paid
+# TODO catch error if column does not exist
+# TODO if username already exists fetch list of usernames check if 
+# TODO verify person details by use of sending short code to number or email provided
+# TODO check if username if exists
+# TODO check if credibility of details
+# TODO catch date range error on the server side
+# TODO solve bug users accessing index page without due to session storage
+# TODO create wrapper functions to validate login when traversing routes 
+# TODO enable log out of users
+# TODO create error codes for comms
+"""
+Electricity problems *5501
+pipe damages         *5503
+late bill payment    *4201
+diconnection         *420
+maintenance          *5502
+"""
 app = Flask(__name__)
 
 # app.secret_key= 'treyulwito'
 
 # db connection details
-# app.config["MYSQL_HOST"] = "localhost"
-# app.config["MYSQL_USER"] = "root"
-# app.config["MYSQL_PASSWORD"] = "Treyul@18" 
-# app.config["MYSQL_DB"] = "water_billing" 
-app.config["MYSQL_HOST"] = "us-cdbr-east-05.cleardb.net"
-app.config["MYSQL_USER"] = "bef134615a5bbe"
-app.config["MYSQL_PASSWORD"] = "70b6c7f2"
-app.config["MYSQL_DB"] = "heroku_ba6afcca4de000d"
+app.config["MYSQL_HOST"] = "localhost"
+app.config["MYSQL_USER"] = "root"
+app.config["MYSQL_PASSWORD"] = "Treyul@18" 
+app.config["MYSQL_DB"] = "water_billing" 
+# app.config["MYSQL_HOST"] = "us-cdbr-east-05.cleardb.net"
+# app.config["MYSQL_USER"] = "bef134615a5bbe"
+# app.config["MYSQL_PASSWORD"] = "70b6c7f2"
+# app.config["MYSQL_DB"] = "heroku_ba6afcca4de000d"
 mysql = MySQL(app)
 
 # configure the session    
-app.config['SESSION_PERMANENT']= False
+app.config['SESSION_PERMANENT']= False 
 app.config['SESSION_TYPE'] = 'filesystem'
 Session(app)
 
@@ -56,7 +75,7 @@ def index():
     # if user is logged render home page
     return render_template("index.html",name=session['name'])
 
-@app.route("/login",methods=["POST","GET"])
+@app.route("/login",methods=["POST","GET"]) 
 def login():
     global accounts
     db = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
@@ -117,14 +136,90 @@ def login():
                 if user_status == "connected":
 
                     print("conn")
+                    # fetch readings 
+                    # db.execute(f"SELECT `5-{CURRENT_MONTH}` FROM readings WHERE  account = %s;",details)
+                    # read = db.fetchone()
+                    db.execute(f"SELECT `5-{CURRENT_MONTH}`, `5-{PREVIOUS_MONTH}` FROM readings WHERE  account = %s;",details)
+                    readings = list(db.fetchall())
+
+                    # currentReading = readings[0][f"5-{CURRENT_MONTH}"]
+                    # previousReading = readings[0][f"5-{PREVIOUS_MONTH}"]
+                    response_message["current_reading"] =readings[0][f"5-{CURRENT_MONTH}"]
+                    response_message["previous_reading"] = readings[0][f"5-{PREVIOUS_MONTH}"]
+
+                    # add payments to the array
+                    last_payments = [] 
+
+                    try:
+                        minus = 1
+                        while len(last_payments) < 3:
+                            db.execute(f"SELECT `{MONTHS[month_data-minus]}-{year}` FROM payments WHERE `{MONTHS[month_data-minus]}-{year}` IS NOT NULL AND accounts = %s",details)
+                            payments = list(db.fetchall())
+
+                            print(f"{MONTHS[month_data-minus]}-{year}")
+                            print(minus)
+                            print(payments)
+                            print(len(payments))
+                            print(len(last_payments))
+
+                            if len(payments) > 0:
+                                paymentOne = payments[0][f"{MONTHS[month_data-minus]}-{year}"]
+
+                                print(paymentOne)
+
+                                for el in re.split('{|}',paymentOne):
+                                    if len(el) > 0:
+                                        for desc in re.split(';',el):
+                                            if len(last_payments) < 3:
+                                                last_payments.append(desc)
+                         
+                                                print(f"This {last_payments}")
+                    
+                            minus = minus + 1
+                    except Error:
+                        last_payments.append("NULL")
+                        minus = minus + 1
+              
+            
+                    print(last_payments)
+            
+                    response_message["pay"] = last_payments
+                
+                    # fetch amount paid in the month upto current  date
+                    db.execute(f"SELECT `{CURRENT_MONTH}` FROM payments WHERE `{CURRENT_MONTH}` IS NOT NULL AND accounts = %s",details)
+                    payments = list(db.fetchall())
+                    if len(payments) > 0:
+                        paymentOne = payments[0][f"{CURRENT_MONTH}"]
+                    else:
+                        paymentOne = 0
+                    response_message["payment1"] = paymentOne
+             
+                    # fetch balance 
+                    db.execute(f"SELECT `{PREVIOUS_MONTH}` FROM balance WHERE accounts = %s", details)
+                    balance = db.fetchone()
+                    # bal = balance[f"{PREVIOUS_MONTH}"]
+                    # print(bal)
+                    response_message["balance"] = balance[f"{PREVIOUS_MONTH}"]
+
+                    print(response_message)
+
+                    # return response 
+                    return make_response(jsonify(response_message),200)
 
                 # if user status is disconnected
-                elif user_status == "disconected":
+                elif user_status == "disconnected":
+                    '''
+                    TODO get date of disconnection from server
+                    fetch reading data based on the above date
+                    # 
+                    '''
                     
                     print("disco")
 
             # if priviledge is admin
             elif user_priviledge == "admin":
+                print("exec")
+                # return render_template("test.html")
                 response_message = {"message":"success","rights":"admin"}
                 # fetch current and previous readings and users
                 db.execute(f"select sum(`5-{CURRENT_MONTH}`),sum(`5-{PREVIOUS_MONTH}`),sum(`5-{MONTHS[month_data-3]}-{year}`),count(`5-{CURRENT_MONTH}`),count(`5-{PREVIOUS_MONTH}`) from readings;")
@@ -135,10 +230,6 @@ def login():
                     for info in prev.values():
                         user_revenue.append(info)
 
-                # current_total = DATA[0][f"sum(`5-{CURRENT_MONTH}`)"]
-                # previous_total =DATA[0][f"sum(`5-{PREVIOUS_MONTH}`)"]
-                # current_users=DATA[0][f"count(`5-{CURRENT_MONTH}`)"]
-                # previous_users = DATA[0][f"count(`5-{PREVIOUS_MONTH}`)"]
                 
                 # user_revenue = [current_total,previous_total,current_users,previous_users]
                 response_message["revenue"] = user_revenue
@@ -152,7 +243,7 @@ def login():
                 
                 response_message["payments"] = payments_sum
 
-                # TODO get amount of debt paid
+
 
                 """
 
@@ -284,75 +375,7 @@ def login():
                 """
                 return make_response(jsonify(response_message),200)
  
-            # fetch readings 
-            # db.execute(f"SELECT `5-{CURRENT_MONTH}` FROM readings WHERE  account = %s;",details)
-            # read = db.fetchone()
-            db.execute(f"SELECT `5-{CURRENT_MONTH}`, `5-{PREVIOUS_MONTH}` FROM readings WHERE  account = %s;",details)
-            readings = list(db.fetchall())
-
-            # currentReading = readings[0][f"5-{CURRENT_MONTH}"]
-            # previousReading = readings[0][f"5-{PREVIOUS_MONTH}"]
-            response_message["current_reading"] =readings[0][f"5-{CURRENT_MONTH}"]
-            response_message["previous_reading"] = readings[0][f"5-{PREVIOUS_MONTH}"]
-
-            # add payments to the array
-            last_payments = [] 
-            # TODO catch error if column does not exist
-            try:
-                minus = 1
-                while len(last_payments) < 3:
-                    db.execute(f"SELECT `{MONTHS[month_data-minus]}-{year}` FROM payments WHERE `{MONTHS[month_data-minus]}-{year}` IS NOT NULL AND accounts = %s",details)
-                    payments = list(db.fetchall())
-
-                    print(f"{MONTHS[month_data-minus]}-{year}")
-                    print(minus)
-                    print(payments)
-                    print(len(payments))
-                    print(len(last_payments))
-                    
-                    if len(payments) > 0:
-                        paymentOne = payments[0][f"{MONTHS[month_data-minus]}-{year}"]
-                        
-                        print(paymentOne)
-                        
-                        for el in re.split('{|}',paymentOne):
-                            if len(el) > 0:
-                                for desc in re.split(';',el):
-                                    if len(last_payments) < 3:
-                                        last_payments.append(desc)
-                         
-                                        print(f"This {last_payments}")
-                    
-                    minus = minus + 1
-            except Error:
-                last_payments.append("NULL")
-                minus = minus + 1
-              
             
-            print(last_payments)
-            
-            response_message["pay"] = last_payments
-                
-            # fetch amount paid in the month upto current  date
-            db.execute(f"SELECT `{CURRENT_MONTH}` FROM payments WHERE `{CURRENT_MONTH}` IS NOT NULL AND accounts = %s",details)
-            payments = list(db.fetchall())
-            if len(payments) > 0:
-                paymentOne = payments[0][f"{CURRENT_MONTH}"]
-            else:
-                paymentOne = 0
-            response_message["payment1"] = paymentOne
-             
-            # fetch balance 
-            db.execute(f"SELECT `{PREVIOUS_MONTH}` FROM balance WHERE accounts = %s", details)
-            balance = db.fetchone()
-            # bal = balance[f"{PREVIOUS_MONTH}"]
-            # print(bal)
-            response_message["balance"] = balance[f"{PREVIOUS_MONTH}"]
-
-            print(response_message)
-
-            # return response 
-            return make_response(jsonify(response_message),200)
             # return make_response(jsonify({"message":"success","previousreading":f"{previousReading}","currentreading":f"{currentReading}","balance":f"{bal}","payment1":f"{paymentOne}","pay":f"{last_payments}"}),200)
 
     return  render_template('login.html')
@@ -382,17 +405,14 @@ def signin():
         msg = ''
 
         # validate user inputs
-        # TODO create user with the credentials provided if first batch checks out
-        # TODO if username already exists
-        # TODO verify person details by use of sending short code to number or email provided     
+     
         if not re.match(r'[a-zA-Z0-9]+',username):
             
             print("username should not contain symbols")
             
             return
         else:
-            # TODO check if username if exists
-            # TODO check if credibility of details
+
             if password == cpassword:
                 password = sha512(password.encode()).hexdigest()
             details = (username,password,crt_phone,crt_account,email)
@@ -448,20 +468,27 @@ def trial():
     # match credentials with those in database
     db.execute("SELECT status FROM user WHERE name = %s and account_number = %s and phone_number = %s",(det))
     user = db.fetchone()
-    connected = user["status"]
 
-    print(connected)
-    print(crt_name.lower(),crt_phone, crt_account.upper())
-    
-    if connected == "connected":
+    # catch error if details are incorrect
+    if user == None:
         return make_response(jsonify({"message":"error"}),200)
-    elif connected == "disconnected":
-        return make_response(jsonify({"message":"success"}),200)
-    res = make_response(jsonify({"message":"OK"}),200)
-    return res
+
+    else:
+        # get connection status
+        connection_status = user["status"]
+
+        print(connection_status)
+        print(crt_name.lower(),crt_phone, crt_account.upper())
+
+        if connection_status == "connected":
+            return make_response(jsonify({"message":"error"}),200)
+        
+        elif connection_status == "disconnected":
+            return make_response(jsonify({"message":"success"}),200)
+
+        return make_response(jsonify({"message":"error"}),200)
 
 
-# TODO catch date range error on the server side
 @app.route("/bills",methods=["POST","GET"])
 def bills():
     global accounts
@@ -533,6 +560,7 @@ def payment():
     print(req)
     
     year = datetime.now().strftime("%Y")
+    # get date range that client wants data from
     Start_year = req[0]
     Start_month = req[1]
     End_year = req[2]
@@ -748,8 +776,10 @@ def callback_url():
     #get result code and probably check for transaction success or failure
     result_code=json_data["Body"]["stkCallback"]["ResultCode"]
    
+    if result_code == 0:
+        print("success")
     print(result_code)
-   
+    # db.execute("insert into payment values(f"`{current_month`)")
     message={
         "ResultCode":0,
         "ResultDesc":"success",
@@ -852,7 +882,7 @@ def callback_url():
 # api.add_resource(MakeSTKPush,"/stkpush")
 @app.route("/adm")
 def adm():
-    return render_template("admin.html")
+    return render_template("test.html")
 if __name__ == '__main__':
 
     print("run")

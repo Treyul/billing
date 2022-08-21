@@ -53,6 +53,8 @@ const login = async () => {
       //TODO get billing data about the user(readings, payments)
     });
   } catch (error) {
+    loginbtn.removeAttribute("disabled");
+    loginbtn.nextSibling.remove();
     console.log("there is an error!!!!", error);
   }
 };

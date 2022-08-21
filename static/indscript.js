@@ -60,6 +60,7 @@ let paymenthtml = `<div class="allrow heading">Payments</div>`;
 
 console.log(currpay);
 
+// fetch payments made within the month
 currpay = currpay.split("'").filter((ac) => ac.length > 1);
 if (currpay != "NULL") {
   currpay.forEach((el) => {
@@ -110,10 +111,8 @@ viewmenu.addEventListener("click", function () {
 MenuClose.addEventListener("click", function () {
   menu.classList.add("hidden");
 });
-// pay.addEventListener("click", function (e) {
-//   e.preventDefault();
-// });
 
+// enable searching of payments
 PaymentSearch.forEach((ac) => {
   ac.addEventListener("click", function () {
     //clear contents of results element
@@ -157,6 +156,9 @@ PaymentSearch.forEach((ac) => {
       } else if (Endmonth > monthNumber && Endyr == year) {
         error.innerHTML = "Please select a valid End Month";
         error.classList.remove("hidden");
+      } else if (startyear < 2022) {
+        error.innerHTML = "The start date is not valid choose years after 2022";
+        error.classList.remove("hidden");
       } else {
         // fetch data from database using fetch api
         try {
@@ -171,19 +173,26 @@ PaymentSearch.forEach((ac) => {
 
             //get response from the server
             response.json().then(function (data) {
+              // request resulted in an error
               if (data["message"] !== "success") {
-                console.log(data["message"]);
-              } else {
+                error.innerHTML = "Server error please contact admin";
+                error.classList.remove("hidden");
+              }
+
+              // render data received
+              else {
+                // delete unnecessary info
                 delete data["message"];
 
-                console.log(data["payments"]);
-
-                //get values from each string
+                //get element from the paymnet data array
                 data["payments"].forEach((ac) => {
                   //delete characters from the element
                   const pay = ac.split(/[{}]/g);
+
+                  // get data for payment for that month
                   pay.forEach((args) => {
                     if (args.length > 1) {
+                      // separate the multiple payments
                       const payment = args.split(";");
 
                       payment.forEach((args) => {
@@ -199,6 +208,8 @@ PaymentSearch.forEach((ac) => {
                     }
                   });
                 });
+
+                // insert the payment html into the results container
                 rows.insertAdjacentHTML("beforeend", PaymentTemplate);
               }
             });
@@ -211,7 +222,7 @@ PaymentSearch.forEach((ac) => {
   });
 });
 
-// add listeners to elements with id of first
+//event to enable searching of bills
 BillSearch.forEach((ac) => {
   ac.addEventListener("click", function () {
     //clear results in the div container
@@ -260,6 +271,9 @@ BillSearch.forEach((ac) => {
       } else if (Endmonth > monthNumber && Endyr == year) {
         error.innerHTML = "Please select a valid End Month";
         error.classList.remove("hidden");
+      } else if (startyear < 2022) {
+        error.innerHTML = "The start date is not valid choose years after 2022";
+        error.classList.remove("hidden");
       } else {
         // make a call to the server
         try {
@@ -278,8 +292,10 @@ BillSearch.forEach((ac) => {
 
               // fetch response from the server
               response.json().then(function (data) {
+                // if request resulted in an error
                 if (data["message"] !== "success") {
-                  console.log("Error");
+                  error.innerHTML = "Server error please contact admin";
+                  error.classList.remove("hidden");
                 } else {
                   delete data["message"];
 

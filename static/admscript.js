@@ -1,5 +1,30 @@
 // select html elements
 const tables = document.getElementById("debtanalysis");
+const Feature = document.querySelector(".features--title");
+const FeatureButtons = document.querySelectorAll("button");
+const FeatureContent = document.querySelectorAll(".features--content");
+/*  ************************ */
+// event listeners
+Feature.addEventListener("click", function (e) {
+  e.preventDefault();
+
+  FeatureButtons.forEach((element) =>
+    element.classList.remove("button-active")
+  );
+
+  // get element that is a button close from where click originated from
+  const clicked = e.target.closest("button");
+  // no element found end function
+  if (!clicked) return;
+  clicked.classList.add("button-active");
+  // get data att form element to get corresponding content visible Z
+  const id = clicked.dataset.tab;
+  const content = document.querySelector(`.features--content-0${id}`);
+  FeatureContent.forEach((element) =>
+    element.classList.remove("features--content--active")
+  );
+  content.classList.add("features--content--active");
+});
 
 // functions
 const TableDelete = (element) => {
@@ -9,6 +34,21 @@ const TableDelete = (element) => {
   }
 };
 
+const MonthlyDataConsumption = [
+  { x: "Apr", value: 48 },
+  { x: "May", value: 56 },
+  { x: "June", value: 63 },
+  { x: "Jul", value: 72 },
+];
+
+var watercons = anychart.column();
+var series = watercons.column(MonthlyDataConsumption);
+watercons.container("waterconsumption");
+watercons.xAxis().title("Months");
+watercons.yAxis().title("water units (m3)");
+watercons.barsPadding(5);
+watercons.draw();
+/**TODO uncomment 
 //get json data from server
 const StatString = sessionStorage.getItem("statistics");
 const statistics = JSON.parse(StatString);
@@ -22,7 +62,7 @@ console.log(statistics);
 /********** show variation in debts **********/
 
 // get debt data
-const debtsArray = statistics["debt_data"];
+/*const debtsArray = statistics["debt_data"];
 
 // map data into repective monthly  containers
 for (i in debtsArray) {
@@ -71,7 +111,7 @@ for (element of tables.children) {
 /********** show variation in revenue collection and user paymnets**********/
 
 // deconstruct revenue array and monthly payments
-const [firstred, secondred, thirdread, ...usercounts] = statistics["revenue"];
+/*const [firstred, secondred, thirdread, ...usercounts] = statistics["revenue"];
 const [currpay, prevpay] = statistics["payments"];
 
 // create pie chart for the current month user payments
@@ -118,7 +158,7 @@ RevenueVariation.draw();
 /********** show variation in how users have tended to their bill **********/
 
 // deconstruct user stats
-const [CurrentStats, PreviousStats] = statistics["user_stats"];
+/*const [CurrentStats, PreviousStats] = statistics["user_stats"];
 
 // initialize data for the chart
 var data = anychart.data.set([
@@ -161,7 +201,7 @@ chart.barGroupsPadding(2);
 chart.draw();
 
 /********** show variation in water consumption ***********/
-var MonthlyConsumption = anychart.data.set([
+/*var MonthlyConsumption = anychart.data.set([
   ["Current month", firstred - secondred],
   ["Previous month", thirdread - secondred],
 ]);
@@ -175,6 +215,8 @@ monthly.xAxis().title("Months");
 monthly.yAxis().title("Units of water used");
 monthly.container("monthlyvariation");
 monthly.draw();
+
+/************End of code to uncomment */
 
 // create graph for the monthly usage
 /*const MonthlyDataConsumption = [

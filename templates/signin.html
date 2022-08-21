@@ -136,6 +136,7 @@
       const submitbtn1 = document.getElementById("send1");
       const phone = document.getElementById("phone");
       const account = document.getElementById("account");
+
       /////////////////////////////////////////////////////
       //define functions to be used
       //check value for inputs if have unnecessary symbols prevent SQL injection
@@ -151,32 +152,42 @@
       const enable = (element) => {
         element.removeAttribute("disabled");
       };
+
       /////////////////////////////////////////////////////
       //defining event listeners for web interaction
+
+      //eveny listener for the verification of details
       submitbtn1.addEventListener("click", function (e) {
         e.preventDefault();
+
+        /*const formdata = new FormData(form1); 
+        const values = [...formdata.entries()];*/
         //get data from form once submitted
-        const formdata = new FormData(form1);
-        const values = [...formdata.entries()];
+
         error2.classList.add("hidden");
-        if (phone.length < 13 && phone.length > 9) {
+
+        //validate the phone number inputed
+        if (phone.value.length != 13 && phone.value.length != 9) {
           error2.innerHTML = "Phone number is invalid";
           error2.classList.remove("hidden");
-        } else if (account.value.length != 7) {
+        }
+        //validate account number should have 7 chars
+        else if (account.value.length != 7) {
           console.log(account.value.length);
           error2.innerHTML = "Please enter valid account number";
           error2.classList.remove("hidden");
         }
+
+        //insert spinning element to show client page is loading
         submitbtn1.insertAdjacentHTML(
           "afterend",
           `<i class="fa-solid fa-spinner fa-pulse fa-lg"></i>`
         );
         console.log("First");
         submit();
-        //submitbtn1.nextElementSibling.remove();
       });
-      //TODO try AJAX xmlhttprequest
-      //TODO fetch api for config of verification of details
+
+      //event lister for account creation
       submitbtn2.addEventListener("click", function (e) {
         e.preventDefault();
         //validate user inputs
@@ -194,6 +205,8 @@
           console.log(error);
         }
       });
+
+      //function for verification of details
       const submit = async () => {
         try {
           let response = await fetch("/trial", {
@@ -208,9 +221,12 @@
             response.json().then(function (data) {
               //TODO check message that is received
               if (data["message"] == "success") {
+                //show user details were accepted by server
                 submitbtn1.classList.remove("send");
                 submitbtn1.classList.add("accept");
                 error2.classList.add("hidden");
+
+                //disable input fields for user billing details
                 disable(submitbtn1);
                 for (let i = 2; i < 7; i++) {
                   enable(form2.children.item(i).children.item(0));
@@ -218,8 +234,12 @@
                   //clean(form1.children.item(i));
                   disable(form1.children.item(i));
                 }
+
+                //remove spinner element
                 submitbtn1.nextSibling.remove();
-              } else if (data["message"] == "error") {
+              }
+              //render error to clients details provided are not valid
+              else if (data["message"] == "error") {
                 error2.innerHTML =
                   "incorrect details or You already have an account";
                 error2.classList.remove("hidden");
@@ -227,12 +247,14 @@
               }
             });
           });
-          //const result = await response.json();
-          //console.log(result);
         } catch (error) {
           console.log("there is an error!!!!", error);
         }
       };
+
+      //validation of user loggin credentials
+
+      //email verification
       email.addEventListener("keyup", function () {
         if (email.value != "") {
           if (email.value.match(/[^@]+@[^@]+\.[^@]+/) == null) {
@@ -253,6 +275,8 @@
           enable(submitbtn2);
         }
       });
+
+      //username validation
       user.addEventListener("keyup", function () {
         if (user.value.match(/[^0-9a-z ]/gi) != null) {
           console.log("username should not contain symbols");
@@ -264,6 +288,8 @@
           enable(submitbtn2);
         }
       });
+
+      //password validation
       pass1.addEventListener("keyup", function () {
         value = pass1.value;
         /*

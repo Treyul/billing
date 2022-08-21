@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script
+      src="https://kit.fontawesome.com/04885ca4bc.js"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      defer
+      src="https://cdn.anychart.com/releases/8.11.0/js/anychart-base.min.js"
+      type="text/javascript"
+    ></script>
+    <script defer src="/static/admscript.js"></script>
+    <link rel="stylesheet" href="/static/indexstyles.css" />
+    <title>Premalite water supply</title>
+  </head>
+  <body>
+    <div id="slide">
+      <input type="checkbox" id="tick" ">
+      <div class="bar-one"></div>
+      <div class="bar-two"></div>
+      <div class="bar-three"></div>
+
+      <div id="menu">
+        <div id="home">
+          <p>Home</p>
+        </div>
+        <div id="members">
+          <p>Members</p>
+          <li>
+            <ul>
+              Add member
+            </ul>
+            <ul>
+              Delete member
+            </ul>
+          </li>
+        </div>
+        <div id="readings">
+          <p>Readings</p>
+          <li>
+            <ul>
+              Update readings
+            </ul>
+            <ul>
+              Check readings
+            </ul>
+            <ul>
+              Edit readings
+            </ul>
+          </li>
+        </div>
+        <div id="payments">
+          <p>Payments</p>
+          <li>
+            <ul>
+              Update payments
+            </ul>
+            <ul>
+              Check Payments
+            </ul>
+          </li>
+        </div>
+        <div id="bills">
+          <p>Bills</p>
+          <li>
+            <ul>
+              Check bills
+            </ul>
+          </li>
+        </div>
+        <div id="settings"><p>Settings</p></div>
+      </div>
+    </div>
+    <p>Welcome Samuel</p>
+    <section class="info">
+      <h4>Customer management made SIMPLER</h4>
+      <p>
+        As we shift our system to be <b>digitized</b> we strive to make our data
+        <b> more central, easily accessible</b> to you.
+      </p>
+      <p>
+        With the implementation of the <b>database and server</b> we guaranteee
+        <b>faster</b> execution of queries and less work needed. Want to access
+        a customers <b>all time data</b>? get it within
+        <strong>seconds</strong>. Made an error in a meter reading? Easy
+        correction of data is now simpler and as a
+        <b>bonus</b>
+        the customer is notified upon correction.
+      </p>
+      <p>
+        Productivity, service delivery and efficiency have been bumped up
+        <strong>100%</strong> with this shift making work easier.
+      </p>
+    </section>
+
+    <section id="features">
+      <div class="header">
+        <h4>FEATURES</h4>
+        <p>
+          Access to consumer data and other features for easier consumer
+          management made available
+        </p>
+      </div>
+      <div class="features">
+        <div class="features--title">
+          <button class="features--title--01 button-active" data-tab="1">
+            Flexibility
+          </button>
+          <button class="features--title--02" data-tab="2">Messaging</button>
+          <button class="features--title--03" data-tab="3">
+            Data analysis
+          </button>
+        </div>
+        <div
+          class="features--content features--content--active features--content-01"
+        >
+          <!-- icon is a passport -->
+          <i style="color: cadetblue" class="fa-solid fa-user"></i>
+          <h4>Customer management couldn't be more simpler</h4>
+          <p>
+            Easy management off consumers could not be any more easier you can
+            now perform complex operations such as messaging users with the
+            click of a button. You can also notify users when there are
+            disruptions in water supply
+          </p>
+        </div>
+        <div class="features--content features--content-02">
+          <!-- icon is a envelope -->
+          <i style="color: #5af15a" class="fa-solid fa-envelope"></i>
+          <h4>Communication with customers made easier</h4>
+          <p>
+            Users are sent messages on every month notifying them of their bills
+            and updates when payments are made and when to expect disruptions in
+            water supply and other notification that may concern them.
+          </p>
+        </div>
+        <div class="features--content features--content-03">
+          <!-- icon is a graph -->
+          <i style="color: orangered" class="fa-solid fa-chart-column"></i>
+          <h4>Analysis of consumer data made less tedious</h4>
+          <p>
+            Analyzing consumer data such as consumption, payments made easier
+            and with the use of visual aids makes it easier interpretation.
+            Analysis can be done monthly, quarterly or annually.
+          </p>
+        </div>
+      </div>
+      <div></div>
+    </section>
+    <div></div>
+    <section class="analysis">
+      <p>Last four months water consumption</p>
+      <div id="waterconsumption"></div>
+    </section>
+    <!-- home page displays 
+    1)line user data
+  water usage 
+search for consumers -->
+    <footer>
+      <ul>
+        <li>About</li>
+        <li>Terms of service</li>
+      </ul>
+      <p>Contact us on</p>
+      <ul>
+        <li>
+          <i class="fa-brands fa-twitter"></i>
+          <a href="">Twitter</a>
+        </li>
+        <li>
+          <i class="fa-brands fa-facebook"></i>
+          <a href="">Facebook</a>
+        </li>
+        <li><i class="fa-brands fa-whatsapp"></i> <a href="">Whatsapp</a></li>
+      </ul>
+      <p>&copy;Copyright 2022</p>
+    </footer>
+  </body>
+</html>
