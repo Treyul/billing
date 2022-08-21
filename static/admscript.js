@@ -44,8 +44,8 @@ const MonthlyDataConsumption = [
 var watercons = anychart.column();
 var series = watercons.column(MonthlyDataConsumption);
 watercons.container("waterconsumption");
-watercons.xAxis().title("Months");
-watercons.yAxis().title("water units (m3)");
+// watercons.xAxis().title("Months");
+// watercons.yAxis().title("water units (m3)");
 watercons.barsPadding(5);
 watercons.draw();
 /**TODO uncomment 
